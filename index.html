@@ -803,8 +803,88 @@ displayRandomQuote();
 
 // Initialize Calendar
 updateCalendar();
+
+// --- LOCAL STORAGE HELPER FUNCTIONS ---
+function saveState() {
+  const state = {
+    tasks: document.getElementById('tasksList').innerHTML,
+    notes: document.getElementById('notesList').innerHTML,
+    grades: document.getElementById('gradeList').innerHTML,
+    links: document.getElementById('quickLinksList').innerHTML,
+    settings: {
+      name: document.getElementById('userName').textContent,
+      email: document.getElementById('userEmail').textContent,
+      avatar: document.querySelector('.avatar').style.backgroundImage || '',
+      accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+      bg: getComputedStyle(document.documentElement).getPropertyValue('--bg').trim(),
+      theme: mode,
+      sidebar: Array.from(document.querySelectorAll('#sidebarNav button')).map(btn => btn.style.display !== 'none'),
+      overview: [
+        !document.getElementById('overviewTasks').classList.contains('hidden'),
+        !document.getElementById('overviewNotifications').classList.contains('hidden'),
+        !document.getElementById('dailyQuote').classList.contains('hidden')
+      ]
+    }
+  };
+  localStorage.setItem('studentOSState', JSON.stringify(state));
+}
+
+function loadState() {
+  const state = JSON.parse(localStorage.getItem('studentOSState'));
+  if (!state) return;
+
+  document.getElementById('tasksList').innerHTML = state.tasks;
+  document.getElementById('allTasksList').innerHTML = state.tasks;
+  document.getElementById('notesList').innerHTML = state.notes;
+  document.getElementById('gradeList').innerHTML = state.grades;
+  document.getElementById('quickLinksList').innerHTML = state.links;
+
+  document.getElementById('userName').textContent = state.settings.name || 'Your Name';
+  document.getElementById('userEmail').textContent = state.settings.email || 'your@email.com';
+  document.querySelector('.avatar').style.backgroundImage = state.settings.avatar || '';
+  document.documentElement.style.setProperty('--accent', state.settings.accent || '#2563eb');
+  document.documentElement.style.setProperty('--bg', state.settings.bg || '#f7f9fb');
+
+  if (state.settings.theme === 'oled') {
+    document.documentElement.classList.add('theme-oled');
+    mode = 'oled';
+    themeBtn.textContent = 'Light Mode';
+  } else {
+    document.documentElement.classList.remove('theme-oled');
+    mode = 'light';
+    themeBtn.textContent = 'OLED Dark';
+  }
+
+  // Sidebar buttons
+  const sidebarBtns = document.querySelectorAll('#sidebarNav button:not([data-view="overview"]):not([data-view="settings"])');
+  sidebarBtns.forEach((btn, i) => btn.style.display = state.settings.sidebar[i] ? 'flex' : 'none');
+
+  // Overview toggles
+  document.getElementById('overviewTasks').style.display = state.settings.overview[0] ? 'block' : 'none';
+  document.getElementById('overviewNotifications').style.display = state.settings.overview[1] ? 'block' : 'none';
+  document.getElementById('dailyQuote').style.display = state.settings.overview[2] ? 'block' : 'none';
+}
+
+// Save whenever something changes
+['tasksList','notesList','gradeList','quickLinksList'].forEach(id => {
+  document.getElementById(id).addEventListener('input', saveState);
+});
+
+// Also save after adding/deleting items
+const originalDeleteItem = deleteItem;
+deleteItem = function(el, type, date, month, year, eventIndex) {
+  originalDeleteItem(el, type, date, month, year, eventIndex);
+  saveState();
+};
+
+// Save settings form changes
+settingsForm.addEventListener('submit', saveState);
+
+// Load state on start
+loadState();
+
 </script>
-  <script>
+<script>
   // Register Service Worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js')
