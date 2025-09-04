@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Student OS</title>
+<style>
+:root{
+  --gap:20px; --radius:14px; --max-width:1200px;
+  --bg: #f7f9fb; --surface:#ffffff; --muted:#6b7280; --text:#0b1220;
+  --accent:#2563eb; --accent-2:#06b6d4; --glass: rgba(11,18,32,0.05); --shadow: 0 12px 40px rgba(11,18,32,0.1);
+  --good: #10b981; --warning: #f59e0b; --danger: #ef4444;
+}
+.theme-oled{ --bg:#000000; --surface:#040404; --muted:#8b96a8; --text:#e6f0fb; --accent:#60a5fa; --accent-2:#34d399; --glass: rgba(255,255,255,0.04); --shadow: 0 16px 48px rgba(0,0,0,0.6); }
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;display:flex;justify-content:center;padding:32px}
+.preview{width:100%;max-width:var(--max-width);display:grid;grid-template-columns:280px 1fr;gap:var(--gap)}
+.sidebar{background:linear-gradient(180deg,var(--surface),color-mix(in srgb,var(--surface) 94%, transparent));border-radius:var(--radius);padding:20px;border:1px solid var(--glass);box-shadow:var(--shadow);display:flex;flex-direction:column}
+.brand{font-weight:800;color:var(--accent);letter-spacing:0.3px;font-size:20px}
+.profile{display:flex;gap:14px;align-items:center;margin:16px 0}
+.avatar{width:50px;height:50px;border-radius:12px;background:linear-gradient(90deg,var(--accent),var(--accent-2));display:grid;place-items:center;color:var(--surface);font-weight:700;background-size:cover;background-position:center}
+.nav{margin:20px 0;display:flex;flex-direction:column;gap:10px}
+.nav button{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:15px;font-weight:500;transition:background 0.2s, color 0.2s, transform 0.1s}
+.nav button:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 8%, var(--surface)), transparent);color:var(--text);transform:translateX(4px)}
+.nav button.active{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 12%, var(--surface)), transparent);color:var(--text);font-weight:600}
+.canvas{display:flex;flex-direction:column;gap:var(--gap)}
+.header{display:flex;justify-content:space-between;align-items:center;gap:14px;padding-bottom:12px}
+.title{font-size:22px;font-weight:700}
+.subtitle{color:var(--muted);font-size:14px;margin-top:4px}
+.header-right{display:flex;gap:10px}
+.btn{border-radius:12px;padding:10px 16px;border:0;background:var(--accent);color:var(--surface);cursor:pointer;font-size:14px;font-weight:600;transition:background 0.2s, transform 0.1s}
+.btn:hover{transform:scale(1.03);background:color-mix(in srgb, var(--accent) 90%, white)}
+.btn.ghost{background:transparent;border:1px solid var(--glass);color:var(--text)}
+.btn.ghost:hover{background:var(--glass);transform:scale(1.03)}
+.grid{display:grid;grid-template-columns:1fr;gap:var(--gap);align-items:start}
+.card{background:var(--surface);border-radius:14px;padding:20px;border:1px solid var(--glass);box-shadow:var(--shadow);transition:transform 0.2s, box-shadow 0.2s}
+.card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(11,18,32,0.12)}
+.card h3{margin:0 0 10px 0;font-size:18px;font-weight:600}
+.small{color:var(--muted);font-size:14px}
+.tasks{display:flex;flex-direction:column;gap:12px}
+.task{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);transition:background 0.2s, transform 0.2s}
+.task:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px)}
+.task .delete-btn { cursor: pointer; color: var(--muted); margin-left: 8px; font-size:16px; transition: color 0.2s; }
+.task .delete-btn:hover { color: var(--danger); }
+.pill{padding:6px 12px;border-radius:999px;font-weight:600;font-size:12px}
+.pill.low{background:color-mix(in srgb,var(--surface) 85%, white);color:var(--muted)}
+.pill.med{background:#ffd166;color:#042}
+.pill.high{background:#ff6b6b;color:#042}
+.feature{display:flex;flex-direction:column;gap:10px}
+.icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022;font-weight:700}
+.notifications{display:flex;flex-direction:column;gap:12px}
+.note{display:flex;align-items:flex-start;gap:14px;padding:14px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);white-space:pre-wrap;transition:background 0.2s, transform 0.2s}
+.note:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px)}
+.note .delete-btn { cursor: pointer; color: var(--muted); margin-left: auto; font-size:16px; transition: color 0.2s; }
+.note .delete-btn:hover { color: var(--danger); }
+.footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--muted);font-size:14px}
+.hidden { display: none; }
+dialog { border: none; border-radius: var(--radius); padding: 24px; background: var(--surface); box-shadow: var(--shadow); max-width: 400px; width: 100%; }
+dialog::backdrop { background: rgba(0,0,0,0.5); }
+form { display: flex; flex-direction: column; gap: 14px; }
+input, select, textarea { padding: 12px; border-radius: 10px; border: 1px solid var(--glass); background: var(--surface); color: var(--text); font-family: Roboto; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
+textarea { min-height: 120px; resize: vertical; }
+.timer { font-size: 48px; text-align: center; margin: 24px 0; font-family: monospace; }
+.links { display: flex; flex-direction: column; gap: 12px; }
+.link { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--glass) 60%, transparent); transition: background 0.2s, transform 0.2s; }
+.link:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); }
+.link a { color: var(--accent); text-decoration: none; flex: 1; font-weight: 500; font-size: 15px; }
+.link .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color 0.2s; }
+.link .delete-btn:hover { color: var(--danger); }
+.link .link-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--glass); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 18px; }
+.cal-header { font-weight: 600; color: var(--muted); text-align: center; padding: 10px; font-size: 14px; }
+.cal-day { text-align: center; padding: 12px; border-radius: 10px; cursor: pointer; position: relative; transition: background 0.2s, transform 0.2s; font-size: 14px; }
+.cal-day:hover { background: var(--glass); transform: scale(1.05); }
+.cal-current { background: var(--accent); color: var(--surface); }
+.cal-event { position: absolute; top: 4px; right: 4px; background: var(--accent-2); color: var(--surface); border-radius: 999px; font-size: 11px; padding: 4px 8px; }
+.cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.cal-nav-btn { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--glass); background: transparent; cursor: pointer; font-size: 14px; transition: background 0.2s, transform 0.1s; }
+.cal-nav-btn:hover { background: var(--glass); transform: scale(1.03); }
+.flashcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+.flashcard { cursor: pointer; height: 200px; position: relative; }
+.flashcard-inner { width: 100%; height: 100%; border-radius: 12px; box-shadow: var(--shadow); }
+.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: var(--surface); border: 1px solid var(--glass); border-radius: 12px; font-size: 15px; font-weight: 500; transition: opacity 0.3s; }
+.flashcard-back { opacity: 0; background: color-mix(in srgb, var(--surface) 95%, var(--accent)); }
+.flashcard.show-back .flashcard-front { opacity: 0; }
+.flashcard.show-back .flashcard-back { opacity: 1; }
+.flashcard-category { position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 8px; background: var(--accent-2); color: var(--surface); font-size: 13px; font-weight: 600; }
+.grades { display: flex; flex-direction: column; gap: 14px; }
+.grade { display: flex; flex-direction: column; padding: 16px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--glass) 60%, transparent); transition: background 0.2s, transform 0.2s; }
+.grade:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); }
+.grade-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 16px; }
+.grade-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
+.grade-item { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; }
+.grade-item .grade-value { display: flex; align-items: center; gap: 10px; }
+.grade-progress { height: 10px; border-radius: 5px; background: var(--glass); overflow: hidden; margin-top: 10px; }
+.grade-progress-bar { height: 100%; background: var(--good); transition: width 0.4s ease-in-out; }
+.grade .add-grade-btn { margin-top: 12px; font-size: 14px; padding: 8px 16px; }
+.grade .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color 0.2s; }
+.grade .delete-btn:hover { color: var(--danger); }
+.settings-form { display: grid; grid-template-columns: 1fr; gap: 20px; }
+.settings-form label { display: flex; flex-direction: column; font-size: 14px; font-weight: 500; gap: 6px; }
+.settings-form label input, .settings-form label select { margin-top: 0; }
+.customize-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--glass); }
+.customize-section h4 { margin-bottom: 12px; font-size: 16px; }
+.customize-section .toggle { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.quote { font-style: italic; font-size: 16px; margin-bottom: 8px; }
+.quote-author { text-align: right; color: var(--muted); font-size: 14px; }
+</style>
+</head>
+<body>
+  <div class="preview" id="preview">
+    <aside class="sidebar">
+      <div class="brand">StudentOS</div>
+      <div class="profile" id="profile">
+        <div class="avatar"></div>
+        <div>
+          <div style="font-weight:700;font-size:16px" id="userName">Your Name</div>
+          <div class="small" id="userEmail">your@email.com</div>
+        </div>
+      </div>
+
+      <nav class="nav" aria-label="Main" id="sidebarNav">
+        <button class="active" data-view="overview">Overview</button>
+        <button data-view="tasks">Tasks</button>
+        <button data-view="notes">Notes</button>
+        <button data-view="calendar">Calendar</button>
+        <button data-view="flashcards">Flashcards</button>
+        <button data-view="grades">Grades</button>
+        <button data-view="quicklinks">Quick Links</button>
+        <button data-view="settings">Settings</button>
+      </nav>
+
+      <div style="margin-top:auto" class="small"></div>
+    </aside>
+
+    <main class="canvas">
+      <div class="header">
+        <div>
+          <div class="title">Student Workspace</div>
+          <div class="subtitle">Organize, track, and succeed</div>
+        </div>
+        <div class="header-right">
+          <button id="themeToggle" class="btn ghost">OLED Dark</button>
+          <button id="quickAdd" class="btn">+ Quick Add Task</button>
+        </div>
+      </div>
+
+      <div class="grid" id="overview">
+        <div id="overviewTasks" class="card">
+          <h3>Upcoming Tasks</h3>
+          <div class="small">Next 7 days</div>
+          <div style="margin-top:16px" class="tasks" id="tasksList">
+            <div class="task"><div style="display:flex;flex-direction:column"><div class="title">Sketch project wireframes</div><div class="meta">Thu • UI</div></div><div style="margin-left:auto;display:flex;align-items:center"><span class="pill med">MED</span><span class="delete-btn" onclick="deleteItem(this, 'task')">×</span></div></div>
+            <div class="task"><div style="display:flex;flex-direction:column"><div class="title">Read ch.5 — Fourier</div><div class="meta">Sat • Math</div></div><div style="margin-left:auto;display:flex;align-items:center"><span class="pill high">HIGH</span><span class="delete-btn" onclick="deleteItem(this, 'task')">×</span></div></div>
+          </div>
+        </div>
+
+        <div id="overviewNotifications" class="card">
+          <h3>Notifications</h3>
+          <div class="small">Reminders & deadlines</div>
+          <div style="margin-top:16px" class="notifications" id="notifications">
+            <div class="note"><strong>Assignment due</strong> — History essay due tomorrow <span class="delete-btn" onclick="deleteItem(this, 'note')">×</span></div>
+            <div class="note"><strong>Group event</strong> — Math study starts in 1 hour <span class="delete-btn" onclick="deleteItem(this, 'note')">×</span></div>
+          </div>
+        </div>
+
+        <div id="dailyQuote" class="card">
+          <h3>Daily Motivation</h3>
+          <blockquote id="quoteText" class="quote"></blockquote>
+          <cite id="quoteAuthor" class="quote-author"></cite>
+        </div>
+      </div>
+
+      <!-- Tasks View -->
+      <div class="grid hidden" id="tasks">
+        <div class="card">
+          <h3>All Tasks</h3>
+          <div class="small">Manage your tasks here</div>
+          <div style="margin-top:16px" class="tasks" id="allTasksList"></div>
+        </div>
+      </div>
+
+      <!-- Notes View -->
+      <div class="grid hidden" id="notes">
+        <div class="card">
+          <h3>Notes</h3>
+          <div class="small">Your personal notes</div>
+          <div style="margin-top:16px" class="notifications" id="notesList"></div>
+          <button id="addNote" class="btn" style="margin-top:16px">+ Add Note</button>
+        </div>
+      </div>
+
+      <!-- Calendar View -->
+      <div class="grid hidden" id="calendar">
+        <div class="card">
+          <h3 id="calendarMonth">September 2025</h3>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="prevMonth()">Previous</button>
+            <div id="calendarYear">2025</div>
+            <button class="cal-nav-btn" onclick="nextMonth()">Next</button>
+          </div>
+          <div class="calendar" id="calendarGrid">
+            <div class="cal-header">Mo</div><div class="cal-header">Tu</div><div class="cal-header">We</div><div class="cal-header">Th</div><div class="cal-header">Fr</div><div class="cal-header">Sa</div><div class="cal-header">Su</div>
+            <div class="cal-day" data-date="1">1</div><div class="cal-day cal-current" data-date="2">2</div><div class="cal-day" data-date="3">3</div><div class="cal-day" data-date="4">4</div><div class="cal-day" data-date="5">5</div><div class="cal-day" data-date="6">6</div><div class="cal-day" data-date="7">7</div>
+            <div class="cal-day" data-date="8">8</div><div class="cal-day" data-date="9">9</div><div class="cal-day" data-date="10">10</div><div class="cal-day" data-date="11">11</div><div class="cal-day" data-date="12">12</div><div class="cal-day" data-date="13">13</div><div class="cal-day" data-date="14">14</div>
+            <div class="cal-day" data-date="15">15</div><div class="cal-day" data-date="16">16</div><div class="cal-day" data-date="17">17</div><div class="cal-day" data-date="18">18</div><div class="cal-day" data-date="19">19</div><div class="cal-day" data-date="20">20</div><div class="cal-day" data-date="21">21</div>
+            <div class="cal-day" data-date="22">22</div><div class="cal-day" data-date="23">23</div><div class="cal-day" data-date="24">24</div><div class="cal-day" data-date="25">25</div><div class="cal-day" data-date="26">26</div><div class="cal-day" data-date="27">27</div><div class="cal-day" data-date="28">28</div>
+            <div class="cal-day" data-date="29">29</div><div class="cal-day" data-date="30">30</div>
+          </div>
+          <button id="addEvent" class="btn" style="margin-top:16px">+ Add Event</button>
+        </div>
+      </div>
+
+      <!-- Flashcards View -->
+      <div class="grid hidden" id="flashcards">
+        <div class="card">
+          <h3>Flashcards</h3>
+          <div class="small">Review your cards</div>
+          <div style="margin-top:16px" class="flashcards" id="flashcardList"></div>
+          <button id="addFlashcard" class="btn" style="margin-top:16px">+ Add Flashcard</button>
+        </div>
+      </div>
+
+      <!-- Grades View -->
+      <div class="grid hidden" id="grades">
+        <div class="card">
+          <h3>Grade Tracker</h3>
+          <div class="small">Track your courses and averages</div>
+          <div style="margin-top:16px" class="grades" id="gradeList">
+            <div class="grade">
+              <div class="grade-header">
+                <span>fgaze - Average: 80.00%</span>
+                <span class="delete-btn" onclick="deleteItem(this, 'grade')">×</span>
+              </div>
+              <div class="grade-progress"><div class="grade-progress-bar" style="width:80%"></div></div>
+              <div class="grade-list">
+                <div class="grade-item"><span class="grade-value">Midterm: 90% <span style="color:var(--good)">●</span></span><span class="delete-btn" onclick="deleteItem(this, 'grade-item')">×</span></div>
+                <div class="grade-item"><span class="grade-value">Assignment: 70% <span style="color:var(--warning)">●</span></span><span class="delete-btn" onclick="deleteItem(this, 'grade-item')">×</span></div>
+              </div>
+              <button class="btn ghost add-grade-btn" onclick="addGradeToSubject(this.parentElement, 'fgaze')">+ Add Grade</button>
+            </div>
+          </div>
+          <button id="addSubject" class="btn" style="margin-top:16px">+ Add Subject</button>
+        </div>
+      </div>
+
+      <!-- Quick Links View -->
+      <div class="grid hidden" id="quicklinks">
+        <div class="card">
+          <h3>Quick Links</h3>
+          <div class="small">Your custom shortcuts</div>
+          <div style="margin-top:16px" class="links" id="quickLinksList"></div>
+          <button id="addLink" class="btn" style="margin-top:16px">+ Add Link</button>
+        </div>
+      </div>
+
+      <!-- Settings View -->
+      <div class="grid hidden" id="settings">
+        <div class="card">
+          <h3>Settings</h3>
+          <div class="small">Customize your workspace</div>
+          <form id="settingsForm" style="margin-top:16px" class="settings-form">
+            <label>Name: <input type="text" id="setName" placeholder="Your Name"></label>
+            <label>Email: <input type="email" id="setEmail" placeholder="your@email.com"></label>
+            <label>Profile Picture: <input type="file" id="setAvatar" accept="image/*"></label>
+            <label>Accent Color: <input type="color" id="setAccent" value="#2563eb"></label>
+            <label>Background Color: <input type="color" id="setBg" value="#f7f9fb"></label>
+            <label>Default Theme: 
+              <select id="setTheme">
+                <option value="light">Light</option>
+                <option value="oled">OLED Dark</option>
+              </select>
+            </label>
+            <div class="customize-section">
+              <h4>Customize Sidebar</h4>
+              <div class="toggle"><input type="checkbox" id="toggle-tasks" checked><label for="toggle-tasks">Tasks</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-notes" checked><label for="toggle-notes">Notes</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-calendar" checked><label for="toggle-calendar">Calendar</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-flashcards" checked><label for="toggle-flashcards">Flashcards</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-grades" checked><label for="toggle-grades">Grades</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-quicklinks" checked><label for="toggle-quicklinks">Quick Links</label></div>
+            </div>
+            <div class="customize-section">
+              <h4>Customize Overview</h4>
+              <div class="toggle"><input type="checkbox" id="toggle-overview-tasks" checked><label for="toggle-overview-tasks">Tasks</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-overview-notifications" checked><label for="toggle-overview-notifications">Notifications</label></div>
+              <div class="toggle"><input type="checkbox" id="toggle-daily-quote" checked><label for="toggle-daily-quote">Daily Quote</label></div>
+            </div>
+            <button type="submit" class="btn" style="margin-top:16px">Save</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div></div>
+        <div class="small"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <dialog id="addTaskModal">
+    <h3>Add New Task</h3>
+    <form id="taskForm">
+      <label>Title: <input type="text" id="taskTitle" required></label>
+      <label>Day: <input type="text" id="taskDay" placeholder="e.g., Thu" required></label>
+      <label>Category: <input type="text" id="taskCategory" placeholder="e.g., UI" required></label>
+      <label>Priority: 
+        <select id="taskPriority" required>
+          <option value="low">Low</option>
+          <option value="med">Med</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addTaskModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addNoteModal">
+    <h3>Add New Note</h3>
+    <form id="noteForm">
+      <label>Title: <input type="text" id="noteTitle" required></label>
+      <label>Category: <input type="text" id="noteCategory" placeholder="e.g., Study Notes"></label>
+      <label>Content: <textarea id="noteContent" required></textarea></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addNoteModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addEventModal">
+    <h3>Add Event</h3>
+    <form id="eventForm">
+      <label>Date: <input type="date" id="eventDate" required></label>
+      <label>Description: <input type="text" id="eventDesc" required></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addEventModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dayEventsModal">
+    <h3>Events on <span id="modalDay"></span></h3>
+    <div id="dayEventsList" class="tasks"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button type="button" class="btn ghost" onclick="closeModal('dayEventsModal')">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="addFlashcardModal">
+    <h3>Add Flashcard</h3>
+    <form id="flashcardForm">
+      <label>Category: <input type="text" id="fcCategory" placeholder="e.g., Vocabulary"></label>
+      <label>Front: <input type="text" id="fcFront" required></label>
+      <label>Back: <input type="text" id="fcBack" required></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addFlashcardModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addSubjectModal">
+    <h3>Add Subject</h3>
+    <form id="subjectForm">
+      <label>Subject Name: <input type="text" id="subjectName" required></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addSubjectModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addGradeModal">
+    <h3>Add Grade to <span id="gradeSubject"></span></h3>
+    <form id="gradeForm">
+      <label>Grade (%): <input type="number" id="gradeValue" min="0" max="100" required></label>
+      <label>Description: <input type="text" id="gradeDesc" placeholder="e.g., Midterm"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addGradeModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addLinkModal">
+    <h3>Add New Link</h3>
+    <form id="linkForm">
+      <label>Title: <input type="text" id="linkTitle" required></label>
+      <label>URL: <input type="url" id="linkUrl" required></label>
+      <label>Icon (Emoji): <input type="text" id="linkIcon" placeholder="e.g., 📚"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="closeModal('addLinkModal')">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="timerModal">
+    <h3>Focus Timer</h3>
+    <div class="timer" id="timerDisplay">25:00</div>
+    <div style="display:flex;gap:10px;justify-content:center;margin-top:16px">
+      <button id="pauseTimer" class="btn ghost">Pause</button>
+      <button id="stopTimer" class="btn ghost">Stop</button>
+    </div>
+  </dialog>
+
+<script>
+const themeBtn = document.getElementById('themeToggle');
+let mode = 'light';
+themeBtn.addEventListener('click', () => {
+  if (mode === 'light') {
+    document.documentElement.classList.add('theme-oled');
+    mode = 'oled';
+    themeBtn.textContent = 'Light Mode';
+  } else {
+    document.documentElement.classList.remove('theme-oled');
+    mode = 'light';
+    themeBtn.textContent = 'OLED Dark';
+  }
+});
+
+// Navigation
+const navButtons = document.querySelectorAll('.nav button');
+const views = document.querySelectorAll('.grid');
+navButtons.forEach(button => {
+  button.addEventListener('click', () => {
+    navButtons.forEach(btn => btn.classList.remove('active'));
+    button.classList.add('active');
+    const viewId = button.dataset.view;
+    views.forEach(view => view.classList.toggle('hidden', view.id !== viewId));
+    if (viewId === 'tasks') {
+      document.getElementById('allTasksList').innerHTML = document.getElementById('tasksList').innerHTML;
+    }
+    if (viewId === 'calendar') {
+      updateCalendar();
+    }
+  });
+});
+
+// Close modal
+function closeModal(id) {
+  document.getElementById(id).close();
+}
+
+// Add Task
+const quickAddBtn = document.getElementById('quickAdd');
+const addTaskModal = document.getElementById('addTaskModal');
+const taskForm = document.getElementById('taskForm');
+const tasksList = document.getElementById('tasksList');
+quickAddBtn.addEventListener('click', () => addTaskModal.showModal());
+taskForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('taskTitle').value;
+  const day = document.getElementById('taskDay').value;
+  const category = document.getElementById('taskCategory').value;
+  const priority = document.getElementById('taskPriority').value;
+  const newTask = document.createElement('div');
+  newTask.classList.add('task');
+  newTask.innerHTML = `
+    <div style="display:flex;flex-direction:column">
+      <div class="title">${title}</div>
+      <div class="meta">${day} • ${category}</div>
+    </div>
+    <div style="margin-left:auto;display:flex;align-items:center">
+      <span class="pill ${priority}">${priority.toUpperCase()}</span>
+      <span class="delete-btn" onclick="deleteItem(this, 'task')">×</span>
+    </div>
+  `;
+  tasksList.appendChild(newTask);
+  addNotification(`New task added — ${title}`);
+  closeModal('addTaskModal');
+  taskForm.reset();
+});
+
+// Add Note
+const addNoteBtn = document.getElementById('addNote');
+const addNoteModal = document.getElementById('addNoteModal');
+const noteForm = document.getElementById('noteForm');
+addNoteBtn.addEventListener('click', () => addNoteModal.showModal());
+noteForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('noteTitle').value;
+  const category = document.getElementById('noteCategory').value || 'Uncategorized';
+  const content = document.getElementById('noteContent').value;
+  const newNote = document.createElement('div');
+  newNote.classList.add('note');
+  newNote.innerHTML = `
+    <div>
+      <div style="font-weight:600;font-size:16px">${title}</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${category}</div>
+      <div>${content}</div>
+    </div>
+    <span class="delete-btn" onclick="deleteItem(this, 'note')">×</span>`;
+  document.getElementById('notesList').appendChild(newNote);
+  addNotification(`New note added — ${title}`);
+  closeModal('addNoteModal');
+  noteForm.reset();
+});
+
+// Calendar Events
+let currentMonth = 8; // September (0-based index)
+let currentYear = 2025;
+const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+function updateCalendar() {
+  const calendarGrid = document.getElementById('calendarGrid');
+  const calendarMonth = document.getElementById('calendarMonth');
+  const calendarYear = document.getElementById('calendarYear');
+  calendarMonth.textContent = `${months[currentMonth]} ${currentYear}`;
+  calendarYear.textContent = currentYear;
+  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+  const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+  let html = `
+    <div class="cal-header">Mo</div><div class="cal-header">Tu</div><div class="cal-header">We</div><div class="cal-header">Th</div><div class="cal-header">Fr</div><div class="cal-header">Sa</div><div class="cal-header">Su</div>`;
+  for (let i = 0; i < (firstDay || 7) - 1; i++) {
+    html += `<div class="cal-day" style="visibility:hidden"></div>`;
+  }
+  for (let i = 1; i <= daysInMonth; i++) {
+    const isCurrent = i === 4 && currentMonth === 8 && currentYear === 2025;
+    html += `<div class="cal-day ${isCurrent ? 'cal-current' : ''}" data-date="${i}" data-month="${currentMonth}" data-year="${currentYear}">${i}</div>`;
+  }
+  calendarGrid.innerHTML = html;
+  document.querySelectorAll('.cal-day:not([style*="visibility"])').forEach(day => {
+    day.addEventListener('click', () => {
+      const date = day.dataset.date;
+      const month = day.dataset.month;
+      const year = day.dataset.year;
+      modalDay.textContent = `${months[parseInt(month)]} ${date}, ${year}`;
+      dayEventsList.innerHTML = '';
+      const events = day.querySelectorAll('.cal-event-desc');
+      events.forEach((ev, index) => {
+        const task = document.createElement('div');
+        task.classList.add('task');
+        task.innerHTML = `<div>${ev.textContent}</div><span class="delete-btn" onclick="deleteItem(this, 'event', ${date}, ${month}, ${year}, ${index})">×</span>`;
+        dayEventsList.appendChild(task);
+      });
+      dayEventsModal.showModal();
+    });
+  });
+}
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 0) {
+    currentMonth = 11;
+    currentYear--;
+  }
+  updateCalendar();
+}
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 11) {
+    currentMonth = 0;
+    currentYear++;
+  }
+  updateCalendar();
+}
+const addEventBtn = document.getElementById('addEvent');
+const addEventModal = document.getElementById('addEventModal');
+const eventForm = document.getElementById('eventForm');
+const dayEventsModal = document.getElementById('dayEventsModal');
+const dayEventsList = document.getElementById('dayEventsList');
+const modalDay = document.getElementById('modalDay');
+addEventBtn.addEventListener('click', () => {
+  const today = new Date();
+  document.getElementById('eventDate').value = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  addEventModal.showModal();
+});
+eventForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const dateStr = document.getElementById('eventDate').value;
+  const desc = document.getElementById('eventDesc').value;
+  const date = new Date(dateStr);
+  const day = date.getDate();
+  const month = date.getMonth();
+  const year = date.getFullYear();
+  if (month === currentMonth && year === currentYear) {
+    const dayEl = document.querySelector(`.cal-day[data-date="${day}"][data-month="${month}"][data-year="${year}"]`);
+    if (dayEl) {
+      const eventCount = dayEl.querySelectorAll('.cal-event').length + 1;
+      const eventBadge = document.createElement('div');
+      eventBadge.classList.add('cal-event');
+      eventBadge.textContent = eventCount;
+      dayEl.appendChild(eventBadge);
+      const eventDesc = document.createElement('span');
+      eventDesc.classList.add('cal-event-desc');
+      eventDesc.textContent = desc;
+      eventDesc.style.display = 'none';
+      dayEl.appendChild(eventDesc);
+    }
+  }
+  addNotification(`Event added on ${months[month]} ${day}, ${year}`);
+  closeModal('addEventModal');
+  eventForm.reset();
+});
+
+// Add Flashcard
+const addFlashcardBtn = document.getElementById('addFlashcard');
+const addFlashcardModal = document.getElementById('addFlashcardModal');
+const flashcardForm = document.getElementById('flashcardForm');
+addFlashcardBtn.addEventListener('click', () => addFlashcardModal.showModal());
+flashcardForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const category = document.getElementById('fcCategory').value || 'Uncategorized';
+  const front = document.getElementById('fcFront').value;
+  const back = document.getElementById('fcBack').value;
+  const newCard = document.createElement('div');
+  newCard.classList.add('flashcard');
+  newCard.innerHTML = `
+    <div class="flashcard-inner">
+      <div class="flashcard-front"><span class="flashcard-category">${category}</span>${front}</div>
+      <div class="flashcard-back">${back}</div>
+    </div>
+  `;
+  newCard.addEventListener('click', () => newCard.classList.toggle('show-back'));
+  document.getElementById('flashcardList').appendChild(newCard);
+  addNotification(`Flashcard added: ${front}`);
+  closeModal('addFlashcardModal');
+  flashcardForm.reset();
+});
+
+// Add Subject
+const addSubjectBtn = document.getElementById('addSubject');
+const addSubjectModal = document.getElementById('addSubjectModal');
+const subjectForm = document.getElementById('subjectForm');
+addSubjectBtn.addEventListener('click', () => addSubjectModal.showModal());
+subjectForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('subjectName').value;
+  const newSubject = document.createElement('div');
+  newSubject.classList.add('grade');
+  newSubject.innerHTML = `
+    <div class="grade-header">
+      <span>${name} - Average: N/A</span>
+      <span class="delete-btn" onclick="deleteItem(this, 'grade')">×</span>
+    </div>
+    <div class="grade-progress"><div class="grade-progress-bar" style="width:0%"></div></div>
+    <div class="grade-list"></div>
+    <button class="btn ghost add-grade-btn" onclick="addGradeToSubject(this.parentElement, '${name}')">+ Add Grade</button>
+  `;
+  document.getElementById('gradeList').appendChild(newSubject);
+  addNotification(`Subject added: ${name}`);
+  closeModal('addSubjectModal');
+  subjectForm.reset();
+});
+
+// Add Grade to Subject
+function addGradeToSubject(subjectEl, subjectName) {
+  document.getElementById('gradeSubject').textContent = subjectName;
+  const addGradeModal = document.getElementById('addGradeModal');
+  addGradeModal.showModal();
+  const gradeForm = document.getElementById('gradeForm');
+  gradeForm.onsubmit = (e) => {
+    e.preventDefault();
+    const value = document.getElementById('gradeValue').value;
+    const desc = document.getElementById('gradeDesc').value || 'Grade';
+    const gradeList = subjectEl.querySelector('.grade-list');
+    const newGrade = document.createElement('div');
+    newGrade.classList.add('grade-item');
+    newGrade.innerHTML = `
+      <span class="grade-value">${desc}: ${value}% <span style="color:${value >= 80 ? 'var(--good)' : value >= 60 ? 'var(--warning)' : 'var(--danger)'}">●</span></span>
+      <span class="delete-btn" onclick="deleteItem(this, 'grade-item')">×</span>`;
+    gradeList.appendChild(newGrade);
+    updateAverage(subjectEl);
+    addNotification(`Grade added to ${subjectName}`);
+    closeModal('addGradeModal');
+    gradeForm.reset();
+    gradeForm.onsubmit = null;
+  };
+}
+
+function updateAverage(subjectEl) {
+  const grades = Array.from(subjectEl.querySelectorAll('.grade-item .grade-value')).map(g => {
+    const match = g.textContent.match(/(\d+)%/);
+    return match ? parseFloat(match[1]) : 0;
+  });
+  const progressBar = subjectEl.querySelector('.grade-progress-bar');
+  if (grades.length > 0) {
+    const avg = grades.reduce((a, b) => a + b, 0) / grades.length;
+    subjectEl.querySelector('.grade-header span').textContent = `${subjectEl.querySelector('.grade-header span').textContent.split(' - ')[0]} - Average: ${avg.toFixed(2)}%`;
+    progressBar.style.width = `${avg}%`;
+    progressBar.style.background = avg >= 80 ? 'var(--good)' : avg >= 60 ? 'var(--warning)' : 'var(--danger)';
+  } else {
+    subjectEl.querySelector('.grade-header span').textContent = `${subjectEl.querySelector('.grade-header span').textContent.split(' - ')[0]} - Average: N/A`;
+    progressBar.style.width = '0%';
+  }
+}
+
+// Add Quick Link
+const addLinkBtn = document.getElementById('addLink');
+const addLinkModal = document.getElementById('addLinkModal');
+const linkForm = document.getElementById('linkForm');
+addLinkBtn.addEventListener('click', () => addLinkModal.showModal());
+linkForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const title = document.getElementById('linkTitle').value;
+  const url = document.getElementById('linkUrl').value;
+  const icon = document.getElementById('linkIcon').value || '🔗';
+  const newLink = document.createElement('div');
+  newLink.classList.add('link');
+  newLink.innerHTML = `
+    <span class="link-icon">${icon}</span>
+    <a href="${url}" target="_blank">${title}</a>
+    <span class="delete-btn" onclick="deleteItem(this, 'link')">×</span>`;
+  document.getElementById('quickLinksList').appendChild(newLink);
+  addNotification(`New link added — ${title}`);
+  closeModal('addLinkModal');
+  linkForm.reset();
+});
+
+// Settings
+const settingsForm = document.getElementById('settingsForm');
+settingsForm.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const name = document.getElementById('setName').value;
+  const email = document.getElementById('setEmail').value;
+  const avatarFile = document.getElementById('setAvatar').files[0];
+  const accent = document.getElementById('setAccent').value;
+  const bg = document.getElementById('setBg').value;
+  const theme = document.getElementById('setTheme').value;
+  if (name) document.getElementById('userName').textContent = name;
+  if (email) document.getElementById('userEmail').textContent = email;
+  if (avatarFile) {
+    const url = URL.createObjectURL(avatarFile);
+    document.querySelector('.avatar').style.backgroundImage = `url(${url})`;
+  }
+  document.documentElement.style.setProperty('--accent', accent);
+  document.documentElement.style.setProperty('--bg', bg);
+  if (theme === 'oled') {
+    document.documentElement.classList.add('theme-oled');
+    mode = 'oled';
+    themeBtn.textContent = 'Light Mode';
+  } else {
+    document.documentElement.classList.remove('theme-oled');
+    mode = 'light';
+    themeBtn.textContent = 'OLED Dark';
+  }
+  const sidebarNav = document.getElementById('sidebarNav');
+  sidebarNav.querySelectorAll('button:not([data-view="overview"]):not([data-view="settings"])').forEach(btn => {
+    const id = btn.dataset.view;
+    const toggle = document.getElementById(`toggle-${id}`);
+    btn.style.display = toggle.checked ? 'flex' : 'none';
+  });
+  document.getElementById('overviewTasks').style.display = document.getElementById('toggle-overview-tasks').checked ? 'block' : 'none';
+  document.getElementById('overviewNotifications').style.display = document.getElementById('toggle-overview-notifications').checked ? 'block' : 'none';
+  document.getElementById('dailyQuote').style.display = document.getElementById('toggle-daily-quote').checked ? 'block' : 'none';
+  addNotification('Settings updated');
+});
+
+// Delete Item
+function deleteItem(el, type, date, month, year, eventIndex) {
+  if (confirm('Delete this item?')) {
+    let item = el.closest('.task, .note, .link, .grade, .grade-item');
+    item.remove();
+    if (type === 'grade-item') updateAverage(el.closest('.grade'));
+    if (type === 'event') {
+      const dayEl = document.querySelector(`.cal-day[data-date="${date}"][data-month="${month}"][data-year="${year}"]`);
+      if (dayEl) {
+        const badges = dayEl.querySelectorAll('.cal-event');
+        const descs = dayEl.querySelectorAll('.cal-event-desc');
+        if (eventIndex !== undefined && descs[eventIndex]) {
+          descs[eventIndex].remove();
+          if (badges[eventIndex]) badges[eventIndex].remove();
+          const remainingBadges = dayEl.querySelectorAll('.cal-event');
+          remainingBadges.forEach((badge, i) => badge.textContent = i + 1);
+        }
+      }
+    }
+  }
+}
+
+// Add Notification
+function addNotification(text) {
+  const notifications = document.getElementById('notifications');
+  const newNote = document.createElement('div');
+  newNote.classList.add('note');
+  newNote.innerHTML = `<div><strong>Notification</strong> — ${text}</div><span class="delete-btn" onclick="deleteItem(this, 'note')">×</span>`;
+  notifications.appendChild(newNote);
+}
+
+// Daily Quote
+const quotes = [
+  {quote: "The future belongs to those who believe in the beauty of their dreams.", author: "Eleanor Roosevelt"},
+  {quote: "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.", author: "Malcolm X"},
+  {quote: "You've got to get up every morning with determination if you're going to go to bed with satisfaction.", author: "George Lorimer"},
+  {quote: "The man who does not read books has no advantage over the one who cannot read them.", author: "Mark Twain"},
+  {quote: "A well-educated mind will always have more questions than answers.", author: "Helen Keller"}
+];
+function displayRandomQuote() {
+  const randomIndex = Math.floor(Math.random() * quotes.length);
+  document.getElementById('quoteText').textContent = quotes[randomIndex].quote;
+  document.getElementById('quoteAuthor').textContent = `- ${quotes[randomIndex].author}`;
+}
+displayRandomQuote();
+
+// Initialize Calendar
+updateCalendar();
+</script>
+</body>
+</html>
