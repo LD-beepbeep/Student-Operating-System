@@ -792,7 +792,7 @@ const quotes = [
   {quote: "Education is the passport to the future, for tomorrow belongs to those who prepare for it today.", author: "Malcolm X"},
   {quote: "You've got to get up every morning with determination if you're going to go to bed with satisfaction.", author: "George Lorimer"},
   {quote: "The man who does not read books has no advantage over the one who cannot read them.", author: "Mark Twain"},
-  {quote: "A well-educated mind will always have more questions than answers.", author: "Helen Keller"}
+  {quote: "Super Rare Quote! Well done! ", author: "From The Dev!"}
 ];
 function displayRandomQuote() {
   const randomIndex = Math.floor(Math.random() * quotes.length);
@@ -804,5 +804,14 @@ displayRandomQuote();
 // Initialize Calendar
 updateCalendar();
 </script>
+  <script>
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  }
+</script>
+
 </body>
 </html>
