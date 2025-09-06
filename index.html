@@ -3,16 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-<title>Student OS</title>
+<title>Student OS — Improved</title>
 <style>
-:root{
-  --gap:20px; --radius:14px; --max-width:1200px;
-  --bg: #f7f9fb; --surface:#ffffff; --muted:#6b7280; --text:#0b1220;
-  --accent:#2563eb; --accent-2:#06b6d4; --glass: rgba(11,18,32,0.05); --shadow: 0 12px 40px rgba(11,18,32,0.1);
-  --good: #10b981; --warning: #f59e0b; --danger: #ef4444;
-}
+:root{ --gap:20px; --radius:14px; --max-width:1200px; --bg: #f7f9fb; --surface:#ffffff; --muted:#6b7280; --text:#0b1220; --accent:#2563eb; --accent-2:#06b6d4; --glass: rgba(11,18,32,0.05); --shadow: 0 12px 40px rgba(11,18,32,0.1); --good: #10b981; --warning: #f59e0b; --danger: #ef4444; --anim-short: 0.18s cubic-bezier(.28,.64,.37,1); --anim-med: 0.32s cubic-bezier(.28,.64,.37,1);}
 .theme-oled{ --bg:#000000; --surface:#040404; --muted:#8b96a8; --text:#e6f0fb; --accent:#60a5fa; --accent-2:#34d399; --glass: rgba(255,255,255,0.04); --shadow: 0 16px 48px rgba(0,0,0,0.6); }
 *{box-sizing:border-box}
 html,body{height:100%}
@@ -35,16 +28,21 @@ body{margin:0;font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial;backgr
 .btn:hover{transform:scale(1.03);background:color-mix(in srgb, var(--accent) 90%, white)}
 .btn.ghost{background:transparent;border:1px solid var(--glass);color:var(--text)}
 .btn.ghost:hover{background:var(--glass);transform:scale(1.03)}
+.btn.small{padding:6px 12px;font-size:12px}
 .grid{display:grid;grid-template-columns:1fr;gap:var(--gap);align-items:start}
-.card{background:var(--surface);border-radius:14px;padding:20px;border:1px solid var(--glass);box-shadow:var(--shadow);transition:transform 0.2s, box-shadow 0.2s}
+.card{background:var(--surface);border-radius:14px;padding:20px;border:1px solid var(--glass);box-shadow:var(--shadow);transition:transform var(--anim-short), box-shadow var(--anim-short), opacity var(--anim-short);}
 .card:hover{transform:translateY(-4px);box-shadow:0 16px 48px rgba(11,18,32,0.12)}
 .card h3{margin:0 0 10px 0;font-size:18px;font-weight:600}
 .small{color:var(--muted);font-size:14px}
 .tasks{display:flex;flex-direction:column;gap:12px}
-.task{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);transition:background 0.2s, transform 0.2s}
-.task:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px)}
-.task .delete-btn { cursor: pointer; color: var(--muted); margin-left: auto; font-size:16px; transition: color 0.2s; }
+.task{display:flex;align-items:center;gap:14px;padding:12px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);transition:background var(--anim-short), transform var(--anim-short), opacity var(--anim-short);position:relative;}
+.task:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px);opacity:0.93;}
+.task.completed{opacity:0.6;text-decoration:line-through;}
+.task .task-color{width:8px;height:8px;border-radius:50%;margin-right:8px;flex-shrink:0;}
+.task .delete-btn { cursor: pointer; color: var(--muted); margin-left: auto; font-size:16px; transition: color var(--anim-short); }
 .task .delete-btn:hover { color: var(--danger); }
+.task .complete-btn{cursor:pointer;color:var(--muted);font-size:16px;transition:color var(--anim-short);margin-right:8px;}
+.task .complete-btn:hover{color:var(--good);}
 .pill{padding:6px 12px;border-radius:999px;font-weight:600;font-size:12px}
 .pill.low{background:color-mix(in srgb,var(--surface) 85%, white);color:var(--muted)}
 .pill.med{background:#ffd166;color:#042}
@@ -52,47 +50,56 @@ body{margin:0;font-family:Roboto,system-ui,-apple-system,"Segoe UI",Arial;backgr
 .feature{display:flex;flex-direction:column;gap:10px}
 .icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#022;font-weight:700}
 .notifications{display:flex;flex-direction:column;gap:12px}
-.note{display:flex;align-items:flex-start;gap:14px;padding:14px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);white-space:pre-wrap;transition:background 0.2s, transform 0.2s}
-.note:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px)}
-.note .delete-btn { cursor: pointer; color: var(--muted); margin-left: auto; font-size:16px; transition: color 0.2s; }
+.note{display:flex;align-items:flex-start;gap:14px;padding:14px;border-radius:12px;background:linear-gradient(90deg,color-mix(in srgb,var(--surface) 98%, transparent), transparent);border:1px solid color-mix(in srgb,var(--glass) 60%, transparent);white-space:pre-wrap;transition:background var(--anim-short), transform var(--anim-short), opacity var(--anim-short);}
+.note:hover{background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent);transform:translateY(-2px);opacity:0.92;}
+.note .delete-btn { cursor: pointer; color: var(--muted); margin-left: auto; font-size:16px; transition: color var(--anim-short); }
 .note .delete-btn:hover { color: var(--danger); }
 .footer{display:flex;justify-content:space-between;align-items:center;margin-top:16px;color:var(--muted);font-size:14px}
 .hidden { display: none; }
-dialog { border: none; border-radius: var(--radius); padding: 24px; background: var(--surface); box-shadow: var(--shadow); max-width: 400px; width: 100%; color: var(--text); }
+dialog { border: none; border-radius: var(--radius); padding: 24px; background: var(--surface); box-shadow: var(--shadow); max-width: 720px; width: 100%; color: var(--text); animation: fadeInDialog var(--anim-med);}
 dialog::backdrop { background: rgba(0,0,0,0.5); }
+@keyframes fadeInDialog { from{opacity:0;transform:translateY(40px);} to{opacity:1;transform:translateY(0);} }
 form { display: flex; flex-direction: column; gap: 14px; }
-input, select, textarea { padding: 12px; border-radius: 10px; border: 1px solid var(--glass); background: var(--surface); color: var(--text); font-family: Roboto; font-size: 14px; transition: border-color 0.2s, box-shadow 0.2s; }
+input, select, textarea { padding: 12px; border-radius: 10px; border: 1px solid var(--glass); background: var(--surface); color: var(--text); font-family: Roboto; font-size: 14px; transition: border-color var(--anim-short), box-shadow var(--anim-short); }
 input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 20%, transparent); }
 textarea { min-height: 120px; resize: vertical; }
-.timer { font-size: 48px; text-align: center; margin: 24px 0; font-family: monospace; }
+.timer { font-size: 48px; text-align: center; margin: 24px 0; font-family: monospace; transition: color var(--anim-short);}
+.timer.work { color: var(--accent);}
+.timer.break { color: var(--accent-2);}
 .links { display: flex; flex-direction: column; gap: 12px; }
-.link { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--glass) 60%, transparent); transition: background 0.2s, transform 0.2s; }
-.link:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); }
+.link { display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--glass) 60%, transparent); transition: background var(--anim-short), transform var(--anim-short), opacity var(--anim-short);}
+.link:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); opacity:0.94;}
 .link a { color: var(--accent); text-decoration: none; flex: 1; font-weight: 500; font-size: 15px; }
-.link .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color 0.2s; }
+.link .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color var(--anim-short); }
 .link .delete-btn:hover { color: var(--danger); }
 .link .link-icon { width: 28px; height: 28px; border-radius: 8px; background: var(--glass); display: flex; align-items: center; justify-content: center; font-size: 16px; }
 .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: 18px; }
 .cal-header { font-weight: 600; color: var(--muted); text-align: center; padding: 10px; font-size: 14px; }
-.cal-day { text-align: center; padding: 12px; border-radius: 10px; cursor: pointer; position: relative; transition: background 0.2s, transform 0.2s; font-size: 14px; }
-.cal-day:hover { background: var(--glass); transform: scale(1.05); }
+.cal-day { text-align: center; padding: 12px; border-radius: 10px; cursor: pointer; position: relative; transition: background var(--anim-short), transform var(--anim-short), color var(--anim-short);}
+.cal-day:hover { background: var(--glass); transform: scale(1.05); color:var(--accent);}
 .cal-current { background: var(--accent); color: var(--surface); }
 .cal-event-dot { position: absolute; bottom: 6px; left: 50%; transform: translateX(-50%); width: 6px; height: 6px; border-radius: 50%; background: var(--accent-2); }
 .cal-nav { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.cal-nav-btn { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--glass); background: transparent; cursor: pointer; font-size: 14px; transition: background 0.2s, transform 0.1s; }
+.cal-nav-btn { padding: 8px 16px; border-radius: 10px; border: 1px solid var(--glass); background: transparent; cursor: pointer; font-size: 14px; transition: background var(--anim-short), transform var(--anim-short);}
 .cal-nav-btn:hover { background: var(--glass); transform: scale(1.03); }
-.flashcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
-.flashcard { cursor: pointer; height: 200px; position: relative; }
+.flashcards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+.flashcard { cursor: pointer; height: 220px; position: relative; transition: box-shadow var(--anim-short), transform var(--anim-short), opacity var(--anim-short);}
 .flashcard-inner { width: 100%; height: 100%; border-radius: 12px; box-shadow: var(--shadow); position:relative; }
-.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; padding: 24px; text-align: center; background: var(--surface); border: 1px solid var(--glass); border-radius: 12px; font-size: 15px; font-weight: 500; transition: opacity 0.3s; backface-visibility: hidden; }
+.flashcard-front, .flashcard-back { position: absolute; width: 100%; height: 100%; display: flex; flex-direction:column; align-items: center; justify-content: center; padding: 24px; text-align: center; background: var(--surface); border: 1px solid var(--glass); border-radius: 12px; font-size: 16px; font-weight: 500; transition: opacity var(--anim-med), transform var(--anim-med); backface-visibility: hidden; }
 .flashcard-back { opacity: 0; background: color-mix(in srgb, var(--surface) 95%, var(--accent)); transform: rotateY(180deg); }
 .flashcard-front { transform: rotateY(0deg); }
 .flashcard.show-back .flashcard-front { opacity: 0; transform: rotateY(-180deg); }
 .flashcard.show-back .flashcard-back { opacity: 1; transform: rotateY(0deg); }
-.flashcard-category { position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 8px; background: var(--accent-2); color: var(--surface); font-size: 13px; font-weight: 600; z-index: 2; }
+.flashcard-category { position: absolute; top: 10px; left: 10px; padding: 5px 10px; border-radius: 8px; color: var(--surface); font-size: 13px; font-weight: 600; z-index: 2; }
+.flashcard-actions { position: absolute; bottom: 10px; right: 10px; display: flex; gap: 8px; z-index: 3; }
+.flashcard-actions button { width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; font-size: 16px; transition: transform var(--anim-short); }
+.flashcard-actions button:hover { transform: scale(1.1); }
+.flashcard-actions .easy { background: var(--good); color: white; }
+.flashcard-actions .hard { background: var(--danger); color: white; }
+.delete-btn-fc { position: absolute; top: 10px; right: 10px; z-index: 3; background: var(--danger); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 12px; }
 .grades { display: flex; flex-direction: column; gap: 14px; }
-.grade { display: flex; flex-direction: column; padding: 16px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--glass) 60%, transparent); transition: background 0.2s, transform 0.2s; }
-.grade:hover { background: linear-gradient(90deg, color-mix(in srgb, var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); }
+.grade { display: flex; flex-direction: column; padding: 16px; border-radius: 12px; background: linear-gradient(90deg, color-mix(in srgb, var(--surface) 98%, transparent), transparent); border: 1px solid color-mix(in srgb,var(--glass) 60%, transparent); transition: background var(--anim-short), transform var(--anim-short), opacity var(--anim-short);}
+.grade:hover { background: linear-gradient(90deg, color-mix(in srgb,var(--accent) 5%, var(--surface)), transparent); transform: translateY(-2px); opacity:0.96;}
 .grade-header { display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 16px; }
 .grade-list { margin-top: 12px; display: flex; flex-direction: column; gap: 8px; }
 .grade-item { display: flex; justify-content: space-between; align-items: center; color: var(--muted); font-size: 14px; }
@@ -100,16 +107,37 @@ textarea { min-height: 120px; resize: vertical; }
 .grade-progress { height: 10px; border-radius: 5px; background: var(--glass); overflow: hidden; margin-top: 10px; }
 .grade-progress-bar { height: 100%; background: var(--good); transition: width 0.4s ease-in-out; }
 .grade .add-grade-btn { margin-top: 12px; font-size: 14px; padding: 8px 16px; }
-.grade .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color 0.2s; }
+.grade .delete-btn { cursor: pointer; color: var(--muted); font-size: 16px; transition: color var(--anim-short); }
 .grade .delete-btn:hover { color: var(--danger); }
-.settings-form { display: grid; grid-template-columns: 1fr; gap: 20px; }
-.settings-form label { display: flex; flex-direction: column; font-size: 14px; font-weight: 500; gap: 6px; }
-.settings-form label input, .settings-form label select { margin-top: 0; }
-.customize-section { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--glass); }
-.customize-section h4 { margin-bottom: 12px; font-size: 16px; }
-.customize-section .toggle { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-.quote { font-style: italic; font-size: 16px; margin-bottom: 8px; }
-.quote-author { text-align: right; color: var(--muted); font-size: 14px; }
+.settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.settings-section { grid-column: 1 / -1; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--glass); }
+.settings-section h4 { margin-bottom: 12px; font-size: 16px; }
+.settings-section .toggle { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.note-editor-toolbar { display:flex; gap:8px; align-items:center; margin-bottom:8px }
+.note-editor-toolbar button{ padding:8px;border-radius:8px;border:1px solid var(--glass); background:transparent; cursor:pointer }
+.note-editor{ min-height:220px; border:1px solid var(--glass); padding:12px; border-radius:10px; background:var(--surface); overflow:auto; transition: box-shadow var(--anim-short);}
+.note-list-search{ display:flex; gap:8px; align-items:center; margin-bottom:12px }
+
+/* Calculator Styles */
+.calculator { background: var(--surface); border-radius: 12px; padding: 20px; border: 1px solid var(--glass); box-shadow: var(--shadow); }
+.calc-display { background: var(--glass); border: 1px solid var(--glass); border-radius: 8px; padding: 16px; font-size: 24px; font-family: monospace; text-align: right; margin-bottom: 16px; min-height: 60px; display: flex; align-items: center; justify-content: flex-end; }
+.calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.calc-btn { padding: 16px; border-radius: 8px; border: 1px solid var(--glass); background: var(--surface); cursor: pointer; font-size: 16px; font-weight: 600; transition: background var(--anim-short), transform var(--anim-short); }
+.calc-btn:hover { background: var(--glass); transform: scale(1.02); }
+.calc-btn.operator { background: var(--accent); color: var(--surface); }
+.calc-btn.equals { background: var(--accent-2); color: var(--surface); }
+.calc-btn.clear { background: var(--danger); color: white; }
+
+/* Category colors */
+.cat-work { background: #3b82f6; }
+.cat-personal { background: #10b981; }
+.cat-study { background: #8b5cf6; }
+.cat-health { background: #f59e0b; }
+.cat-default { background: var(--accent); }
+
+@media(max-width:900px){ .preview{grid-template-columns:1fr} .settings-grid{grid-template-columns:1fr} }
+.fade-in { animation: fadeInItem var(--anim-med) both; }
+@keyframes fadeInItem { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
 </style>
 </head>
 <body>
@@ -131,6 +159,8 @@ textarea { min-height: 120px; resize: vertical; }
         <button data-view="flashcards">Flashcards</button>
         <button data-view="grades">Grades</button>
         <button data-view="quicklinks">Quick Links</button>
+        <button data-view="calculator">Calculator</button>
+        <button data-view="pomodoro">Pomodoro</button>
         <button data-view="settings">Settings</button>
       </nav>
       <div style="margin-top:auto" class="small"></div>
@@ -146,585 +176,1455 @@ textarea { min-height: 120px; resize: vertical; }
           <button id="quickAdd" class="btn">+ Quick Add Task</button>
         </div>
       </div>
+
+      <!-- Overview -->
       <div class="grid" id="overview">
-         <div id="overviewTasks" class="card"><h3>Upcoming Tasks</h3><div class="small">Manage your tasks</div><div style="margin-top:16px" class="tasks" id="tasksList"></div></div>
-         <div id="overviewNotifications" class="card"><h3>Notifications</h3><div class="small">Reminders & deadlines</div><div style="margin-top:16px" class="notifications" id="notificationsList"></div></div>
-         <div id="dailyQuote" class="card"><h3>Daily Motivation</h3><blockquote id="quoteText" class="quote"></blockquote><cite id="quoteAuthor" class="quote-author"></cite></div>
+         <div id="overviewTasks" class="card fade-in">
+           <h3>Upcoming Tasks</h3>
+           <div class="small">Manage your tasks</div>
+           <div style="margin-top:16px" class="tasks" id="tasksList"></div>
+         </div>
+         <div id="overviewNotifications" class="card fade-in">
+           <h3>Notifications</h3>
+           <div class="small">Reminders & deadlines</div>
+           <div style="margin-top:16px" class="notifications" id="notificationsList"></div>
+         </div>
+         <div id="dailyQuote" class="card fade-in">
+           <h3>Daily Motivation</h3>
+           <blockquote id="quoteText" class="quote"></blockquote>
+           <cite id="quoteAuthor" class="quote-author"></cite>
+         </div>
       </div>
-      <div class="grid hidden" id="tasks"><div class="card"><h3>All Tasks</h3><div class="small">Manage your tasks here</div><div style="margin-top:16px" class="tasks" id="allTasksList"></div></div></div>
-      <div class="grid hidden" id="notes"><div class="card"><h3>Notes</h3><div class="small">Your personal notes</div><div style="margin-top:16px" class="notifications" id="notesList"></div><button id="addNote" class="btn" style="margin-top:16px">+ Add Note</button></div></div>
-      <div class="grid hidden" id="calendar"><div class="card"><div class="cal-nav"><button class="cal-nav-btn" id="prevMonthBtn">Previous</button><h3 id="calendarMonth"></h3><button class="cal-nav-btn" id="nextMonthBtn">Next</button></div><div class="calendar" id="calendarGrid"></div><button id="addEvent" class="btn" style="margin-top:16px">+ Add Event</button></div></div>
-      <div class="grid hidden" id="flashcards"><div class="card"><h3>Flashcards</h3><div class="small">Review your cards</div><div style="margin-top:16px" class="flashcards" id="flashcardList"></div><button id="addFlashcard" class="btn" style="margin-top:16px">+ Add Flashcard</button></div></div>
-      <div class="grid hidden" id="grades"><div class="card"><h3>Grade Tracker</h3><div class="small">Track your courses and averages</div><div style="margin-top:16px" class="grades" id="gradeList"></div><button id="addSubject" class="btn" style="margin-top:16px">+ Add Subject</button></div></div>
-      <div class="grid hidden" id="quicklinks"><div class="card"><h3>Quick Links</h3><div class="small">Your custom shortcuts</div><div style="margin-top:16px" class="links" id="quickLinksList"></div><button id="addLink" class="btn" style="margin-top:16px">+ Add Link</button></div></div>
-      <div class="grid hidden" id="settings"><div class="card"><h3>Settings</h3><div class="small">Customize your workspace</div><form id="settingsForm" style="margin-top:16px" class="settings-form"><label>Name: <input type="text" id="setName" placeholder="Your Name"></label><label>Email: <input type="email" id="setEmail" placeholder="your@email.com"></label><label>Profile Picture: <input type="file" id="setAvatar" accept="image/*"></label><label>Accent Color: <input type="color" id="setAccent"></label><label>Background Color: <input type="color" id="setBg"></label><label>Default Theme: <select id="setTheme"><option value="light">Light</option><option value="oled">OLED Dark</option></select></label><div class="customize-section"><h4>Customize Sidebar</h4><div class="toggle"><label><input type="checkbox" data-nav="tasks">Tasks</label></div><div class="toggle"><label><input type="checkbox" data-nav="notes">Notes</label></div><div class="toggle"><label><input type="checkbox" data-nav="calendar">Calendar</label></div><div class="toggle"><label><input type="checkbox" data-nav="flashcards">Flashcards</label></div><div class="toggle"><label><input type="checkbox" data-nav="grades">Grades</label></div><div class="toggle"><label><input type="checkbox" data-nav="quicklinks">Quick Links</label></div></div><div class="customize-section"><h4>Customize Overview</h4><div class="toggle"><label><input type="checkbox" data-overview="overviewTasks">Tasks</label></div><div class="toggle"><label><input type="checkbox" data-overview="overviewNotifications">Notifications</label></div><div class="toggle"><label><input type="checkbox" data-overview="dailyQuote">Daily Quote</label></div></div><button type="submit" class="btn" style="margin-top:16px">Save Settings</button></form></div></div>
-      <div class="footer"><div class="small"></div></div>
+
+      <!-- Tasks -->
+      <div class="grid hidden" id="tasks">
+        <div class="card fade-in">
+          <h3>All Tasks</h3>
+          <div class="small">Manage your tasks with categories and colors</div>
+          <div style="margin-top:16px" class="tasks" id="allTasksList"></div>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="grid hidden" id="notes">
+        <div class="card fade-in">
+          <h3>Notes</h3>
+          <div class="small">Your personal notes — editable and searchable</div>
+          <div style="margin-top:12px" class="note-list-search">
+            <input id="noteSearch" placeholder="Search notes or tags..." style="flex:1;padding:10px;border-radius:10px;border:1px solid var(--glass)">
+            <button id="newNoteBtn" class="btn">+ New</button>
+          </div>
+          <div style="margin-top:12px" id="notesListContainer">
+            <div class="notifications" id="notesList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar -->
+      <div class="grid hidden" id="calendar">
+        <div class="card fade-in">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="prevMonthBtn">Previous</button>
+            <h3 id="calendarMonth"></h3>
+            <button class="cal-nav-btn" id="nextMonthBtn">Next</button>
+          </div>
+          <div class="calendar" id="calendarGrid"></div>
+          <button id="addEvent" class="btn" style="margin-top:16px">+ Add Event</button>
+        </div>
+      </div>
+
+      <!-- Flashcards -->
+      <div class="grid hidden" id="flashcards">
+        <div class="card fade-in">
+          <h3>Flashcards</h3>
+          <div class="small">Review your cards with difficulty tracking</div>
+          <div style="margin-top:16px" class="flashcards" id="flashcardList"></div>
+          <button id="addFlashcard" class="btn" style="margin-top:16px">+ Add Flashcard</button>
+        </div>
+      </div>
+
+      <!-- Grades -->
+      <div class="grid hidden" id="grades">
+        <div class="card fade-in">
+          <h3>Grade Tracker</h3>
+          <div class="small">Track your courses and averages</div>
+          <div style="margin-top:16px" class="grades" id="gradeList"></div>
+          <button id="addSubject" class="btn" style="margin-top:16px">+ Add Subject</button>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="grid hidden" id="quicklinks">
+        <div class="card fade-in">
+          <h3>Quick Links</h3>
+          <div class="small">Your custom shortcuts</div>
+          <div style="margin-top:16px" class="links" id="quickLinksList"></div>
+          <button id="addLink" class="btn" style="margin-top:16px">+ Add Link</button>
+        </div>
+      </div>
+
+      <!-- Calculator -->
+      <div class="grid hidden" id="calculator">
+        <div class="card fade-in">
+          <h3>Calculator</h3>
+          <div class="small">Basic calculator for quick calculations</div>
+          <div class="calculator" style="margin-top:16px">
+            <div class="calc-display" id="calcDisplay">0</div>
+            <div class="calc-buttons">
+              <button class="calc-btn clear" data-action="clear">C</button>
+              <button class="calc-btn" data-action="backspace">⌫</button>
+              <button class="calc-btn operator" data-action="operator" data-value="/">/</button>
+              <button class="calc-btn operator" data-action="operator" data-value="*">×</button>
+              
+              <button class="calc-btn" data-action="number" data-value="7">7</button>
+              <button class="calc-btn" data-action="number" data-value="8">8</button>
+              <button class="calc-btn" data-action="number" data-value="9">9</button>
+              <button class="calc-btn operator" data-action="operator" data-value="-">-</button>
+              
+              <button class="calc-btn" data-action="number" data-value="4">4</button>
+              <button class="calc-btn" data-action="number" data-value="5">5</button>
+              <button class="calc-btn" data-action="number" data-value="6">6</button>
+              <button class="calc-btn operator" data-action="operator" data-value="+">+</button>
+              
+              <button class="calc-btn" data-action="number" data-value="1">1</button>
+              <button class="calc-btn" data-action="number" data-value="2">2</button>
+              <button class="calc-btn" data-action="number" data-value="3">3</button>
+              <button class="calc-btn equals" data-action="equals" rowspan="2">=</button>
+              
+              <button class="calc-btn" data-action="number" data-value="0" style="grid-column: span 2;">0</button>
+              <button class="calc-btn" data-action="decimal">.</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pomodoro -->
+      <div class="grid hidden" id="pomodoro">
+        <div class="card fade-in">
+          <h3>Pomodoro Timer</h3>
+          <div class="small">Focus sessions with customizable intervals</div>
+          <div style="margin-top:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+              <label>Work (min): <input type="number" id="pomWork" value="25" min="1" max="120"></label>
+              <label>Short Break: <input type="number" id="pomShort" value="5" min="1" max="30"></label>
+              <label>Long Break: <input type="number" id="pomLong" value="15" min="1" max="60"></label>
+              <label>Cycles: <input type="number" id="pomCycles" value="4" min="1" max="10"></label>
+            </div>
+            <div class="timer work" id="pomTimer">25:00</div>
+            <div style="display:flex;gap:8px;justify-content:center;margin-bottom:16px">
+              <button id="pomStart" class="btn">Start</button>
+              <button id="pomPause" class="btn ghost">Pause</button>
+              <button id="pomReset" class="btn ghost">Reset</button>
+            </div>
+            <div class="small" id="pomStats" style="text-align:center"></div>
+            <div class="small" id="pomStatus" style="text-align:center;margin-top:8px"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="grid hidden" id="settings">
+        <div class="card fade-in">
+          <h3>Settings</h3>
+          <div class="small">Customize your workspace</div>
+          <form id="settingsForm" style="margin-top:16px">
+            <div class="settings-grid">
+              <label>Name: <input type="text" id="setName" placeholder="Your Name"></label>
+              <label>Email: <input type="email" id="setEmail" placeholder="your@email.com"></label>
+              <label>Profile Picture: <input type="file" id="setAvatar" accept="image/*"></label>
+              <label>Default Theme: <select id="setTheme"><option value="light">Light</option><option value="oled">OLED Dark</option></select></label>
+              <label>Accent Color: <input type="color" id="setAccent"></label>
+              <label>Background Color: <input type="color" id="setBg"></label>
+            </div>
+            
+            <div class="settings-section">
+              <h4>Sidebar Navigation</h4>
+              <div class="toggle"><label><input type="checkbox" data-nav="tasks">Tasks</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="notes">Notes</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="calendar">Calendar</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="flashcards">Flashcards</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="grades">Grades</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="quicklinks">Quick Links</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="calculator">Calculator</label></div>
+              <div class="toggle"><label><input type="checkbox" data-nav="pomodoro">Pomodoro</label></div>
+            </div>
+            
+            <div class="settings-section">
+              <h4>Overview Dashboard</h4>
+              <div class="toggle"><label><input type="checkbox" data-overview="overviewTasks">Tasks</label></div>
+              <div class="toggle"><label><input type="checkbox" data-overview="overviewNotifications">Notifications</label></div>
+              <div class="toggle"><label><input type="checkbox" data-overview="dailyQuote">Daily Quote</label></div>
+            </div>
+            
+            <button type="submit" class="btn" style="margin-top:16px">Save Settings</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="small"></div>
+      </div>
     </main>
   </div>
-  <dialog id="addTaskModal"><h3>Add New Task</h3><form id="taskForm"><label>Title: <input type="text" id="taskTitle" required></label><label>Day: <input type="text" id="taskDay" placeholder="e.g., Thu" required></label><label>Category: <input type="text" id="taskCategory" placeholder="e.g., UI" required></label><label>Priority: <select id="taskPriority" required><option value="low">Low</option><option value="med">Med</option><option value="high">High</option></select></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="addNoteModal"><h3>Add New Note</h3><form id="noteForm"><label>Title: <input type="text" id="noteTitle" required></label><label>Category: <input type="text" id="noteCategory" placeholder="e.g., Study Notes"></label><label>Content: <textarea id="noteContent" required></textarea></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="addEventModal"><h3>Add Event</h3><form id="eventForm"><label>Date: <input type="date" id="eventDate" required></label><label>Description: <input type="text" id="eventDesc" required></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="dayEventsModal"><h3>Events on <span id="modalDay"></span></h3><div id="dayEventsList" class="tasks"></div><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Close</button></div></dialog>
-  <dialog id="addFlashcardModal"><h3>Add Flashcard</h3><form id="flashcardForm"><label>Category: <input type="text" id="fcCategory" placeholder="e.g., Vocabulary"></label><label>Front: <input type="text" id="fcFront" required></label><label>Back: <input type="text" id="fcBack" required></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="addSubjectModal"><h3>Add Subject</h3><form id="subjectForm"><label>Subject Name: <input type="text" id="subjectName" required></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="addGradeModal"><h3>Add Grade to <span id="gradeSubject"></span></h3><form id="gradeForm"><label>Grade (%): <input type="number" id="gradeValue" min="0" max="100" step="0.01" required></label><label>Description: <input type="text" id="gradeDesc" placeholder="e.g., Midterm"></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
-  <dialog id="addLinkModal"><h3>Add New Link</h3><form id="linkForm"><label>Title: <input type="text" id="linkTitle" required></label><label>URL: <input type="url" id="linkUrl" required></label><label>Icon (Emoji): <input type="text" id="linkIcon" placeholder="e.g., 📚"></label><div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px"><button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button><button type="submit" class="btn">Add</button></div></form></dialog>
+
+  <!-- MODALS -->
+  <dialog id="addTaskModal">
+    <h3>Add New Task</h3>
+    <form id="taskForm">
+      <label>Title: <input type="text" id="taskTitle" required></label>
+      <label>Day: <input type="text" id="taskDay" placeholder="e.g., Thu" required></label>
+      <label>Category: 
+        <select id="taskCategory" required>
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="study">Study</option>
+          <option value="health">Health</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label>Priority: 
+        <select id="taskPriority" required>
+          <option value="low">Low</option>
+          <option value="med">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="editNoteModal">
+    <h3 id="editNoteTitle">Edit Note</h3>
+    <div>
+      <div class="note-editor-toolbar">
+        <button type="button" data-cmd="bold"><b>B</b></button>
+        <button type="button" data-cmd="italic"><i>I</i></button>
+        <button type="button" data-cmd="underline"><u>U</u></button>
+        <button type="button" data-cmd="insertUnorderedList">• List</button>
+        <button type="button" data-cmd="formatBlock" data-value="h2">H2</button>
+        <button type="button" id="saveNoteBtn" class="btn">Save</button>
+        <button type="button" id="deleteNoteBtn" class="btn ghost">Delete</button>
+      </div>
+      <input id="editNoteCategory" placeholder="Category (tags comma-separated)" style="margin-bottom:8px;padding:10px;border-radius:8px;border:1px solid var(--glass);width:100%">
+      <div id="noteEditor" class="note-editor" contenteditable="true" spellcheck="true"></div>
+    </div>
+  </dialog>
+
+  <dialog id="addEventModal">
+    <h3>Add Event</h3>
+    <form id="eventForm">
+      <label>Date: <input type="date" id="eventDate" required></label>
+      <label>Description: <input type="text" id="eventDesc" required></label>
+      <label>Category:
+        <select id="eventCategory">
+          <option value="work">Work</option>
+          <option value="personal">Personal</option>
+          <option value="study">Study</option>
+          <option value="health">Health</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="dayEventsModal">
+    <h3>Events on <span id="modalDay"></span></h3>
+    <div id="dayEventsList" class="tasks"></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+      <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Close</button>
+    </div>
+  </dialog>
+
+  <dialog id="addFlashcardModal">
+    <h3>Add Flashcard</h3>
+    <form id="flashcardForm">
+      <label>Category: 
+        <select id="fcCategory">
+          <option value="vocabulary">Vocabulary</option>
+          <option value="math">Math</option>
+          <option value="science">Science</option>
+          <option value="history">History</option>
+          <option value="other">Other</option>
+        </select>
+      </label>
+      <label>Front: <input type="text" id="fcFront" required></label>
+      <label>Back: <input type="text" id="fcBack" required></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addSubjectModal">
+    <h3>Add Subject</h3>
+    <form id="subjectForm">
+      <label>Subject Name: <input type="text" id="subjectName" required></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addGradeModal">
+    <h3>Add Grade to <span id="gradeSubject"></span></h3>
+    <form id="gradeForm">
+      <label>Grade (%): <input type="number" id="gradeValue" min="0" max="100" step="0.01" required></label>
+      <label>Description: <input type="text" id="gradeDesc" placeholder="e.g., Midterm"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="addLinkModal">
+    <h3>Add New Link</h3>
+    <form id="linkForm">
+      <label>Title: <input type="text" id="linkTitle" required></label>
+      <label>URL: <input type="url" id="linkUrl" required></label>
+      <label>Icon (Emoji): <input type="text" id="linkIcon" placeholder="e.g., 📚"></label>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:12px">
+        <button type="button" class="btn ghost" onclick="this.closest('dialog').close()">Cancel</button>
+        <button type="submit" class="btn">Add</button>
+      </div>
+    </form>
+  </dialog>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+// App initialization and data
+let appData = {};
+const defaultData = {
+  settings: { 
+    name: 'Student', 
+    email: 'student@os.com', 
+    avatar: null, 
+    accentColor: '#2563eb', 
+    bgColor: '#f7f9fb', 
+    theme: 'light', 
+    nav: { tasks:true, notes:true, calendar:true, flashcards:true, grades:true, quicklinks:true, calculator:true, pomodoro:true }, 
+    overview: { overviewTasks:true, overviewNotifications:true, dailyQuote:true } 
+  },
+  currentTheme: 'light',
+  tasks: [ 
+    { id:1, title:'Sketch project wireframes', day:'Thu', category:'work', priority:'med', completed: false }, 
+    { id:2, title:'Read ch.5 — Fourier', day:'Sat', category:'study', priority:'high', completed: false } 
+  ],
+  notes: [ 
+    { id:1, title:'History Essay', category:'Reminders', content:'The final draft is due tomorrow.'} 
+  ],
+  events: [ 
+    { id:1, date:'2025-09-10', desc:'Team Project Meeting', category:'work' } 
+  ],
+  flashcards: [ 
+    { id:1, category:'science', front:'H₂O', back:'Water', difficulty: 0 } 
+  ],
+  grades: [ 
+    { id:1, subject:'Mathematics', items:[ {id:1, desc:'Midterm', value:90}, {id:2, desc:'Assignment 1', value:70} ] } 
+  ],
+  links: [ 
+    { id:1, title:'University Portal', url:'#', icon:'🎓' } 
+  ],
+  notifications: [ 
+    { id:1, content:'Welcome to StudentOS! Customize your dashboard in the settings.'} 
+  ],
+  pomodoroStats: { sessions:0, workMinutes:0, breakMinutes:0 }
+};
 
-    // --- DATA MANAGEMENT ---
-    let appData = {};
+// Storage functions
+function saveData(){ 
+  try {
+    const data = JSON.stringify(appData);
+    localStorage.setItem('studentOSData', data); 
+  } catch(e) {
+    console.error('Failed to save data:', e);
+  }
+}
 
-    const defaultData = {
-        settings: {
-            name: 'Student',
-            email: 'student@os.com',
-            avatar: null,
-            accentColor: '#2563eb',
-            bgColor: '#f7f9fb',
-            theme: 'light',
-            nav: { tasks: true, notes: true, calendar: true, flashcards: true, grades: true, quicklinks: true },
-            overview: { overviewTasks: true, overviewNotifications: true, dailyQuote: true }
-        },
-        currentTheme: 'light',
-        tasks: [
-            { id: 1, title: 'Sketch project wireframes', day: 'Thu', category: 'UI', priority: 'med' },
-            { id: 2, title: 'Read ch.5 — Fourier', day: 'Sat', category: 'Math', priority: 'high' }
-        ],
-        notes: [
-            { id: 1, title: 'History Essay', category: 'Reminders', content: 'The final draft is due tomorrow.'}
-        ],
-        events: [
-            { id: 1, date: '2025-09-10', desc: 'Team Project Meeting' }
-        ],
-        flashcards: [
-            { id: 1, category: 'Science', front: 'H₂O', back: 'Water' }
-        ],
-        grades: [
-            { id: 1, subject: 'Mathematics', items: [ {id: 1, desc: 'Midterm', value: 90}, {id: 2, desc: 'Assignment 1', value: 70} ] }
-        ],
-        links: [
-            { id: 1, title: 'University Portal', url: '#', icon: '🎓' }
-        ],
-        notifications: [
-            { id: 1, content: 'Welcome to StudentOS! Customize your dashboard in the settings.'}
-        ]
-    };
+function loadData(){ 
+  try {
+    const s = localStorage.getItem('studentOSData'); 
+    appData = s ? JSON.parse(s) : JSON.parse(JSON.stringify(defaultData)); 
+    // Ensure all required properties exist
+    if (!appData.settings) appData.settings = defaultData.settings;
+    if (!appData.pomodoroStats) appData.pomodoroStats = defaultData.pomodoroStats;
+  } catch(e) {
+    console.error('Failed to load data:', e);
+    appData = JSON.parse(JSON.stringify(defaultData));
+  }
+}
 
-    function saveData() {
-        localStorage.setItem('studentOSData', JSON.stringify(appData));
-    }
+function getNextId(arr){ 
+  return arr && arr.length > 0 ? Math.max(...arr.map(i => i.id || 0)) + 1 : 1; 
+}
 
-    function loadData() {
-        const savedData = localStorage.getItem('studentOSData');
-        appData = savedData ? JSON.parse(savedData) : JSON.parse(JSON.stringify(defaultData));
-    }
+// Category color mapping
+function getCategoryColor(category) {
+  const colors = {
+    work: '#3b82f6',
+    personal: '#10b981', 
+    study: '#8b5cf6',
+    health: '#f59e0b',
+    math: '#ef4444',
+    science: '#06b6d4',
+    vocabulary: '#84cc16',
+    history: '#f97316'
+  };
+  return colors[category] || '#6b7280';
+}
 
-    function getNextId(arr) {
-        return arr.length > 0 ? Math.max(...arr.map(item => item.id)) + 1 : 1;
-    }
+// RENDERING FUNCTIONS
+function renderAll(){
+  renderSettings(); 
+  applySettings();
+  renderTasks(); 
+  renderNotes();
+  renderFlashcards(); 
+  renderGrades();
+  renderLinks(); 
+  renderNotifications();
+  updateCalendar();
+  renderPomodoroStats();
+}
 
-    // --- RENDERING FUNCTIONS ---
-    function renderAll() {
-        renderSettings();
-        applySettings();
-        renderTasks();
-        renderNotes();
-        renderFlashcards();
-        renderGrades();
-        renderLinks();
-        renderNotifications();
-        updateCalendar();
-    }
+function fadeInCards(){
+  document.querySelectorAll('.card').forEach((card, i) => {
+    card.classList.add('fade-in');
+    card.style.animationDelay = `${i * 0.02}s`;
+  });
+}
+
+function applySettings(){
+  // Theme
+  document.documentElement.classList.toggle('theme-oled', appData.currentTheme === 'oled');
+  document.getElementById('themeToggle').textContent = appData.currentTheme === 'oled' ? 'Light Mode' : 'OLED Dark';
+  
+  // Colors
+  document.documentElement.style.setProperty('--accent', appData.settings.accentColor);
+  document.documentElement.style.setProperty('--bg', appData.settings.bgColor);
+  
+  // Profile
+  document.getElementById('userName').textContent = appData.settings.name;
+  document.getElementById('headerTitle').textContent = `${appData.settings.name}'s Workspace`;
+  document.getElementById('userEmail').textContent = appData.settings.email;
+  
+  // Avatar
+  const avatarEl = document.getElementById('userAvatar');
+  if (appData.settings.avatar) {
+    avatarEl.style.backgroundImage = `url(${appData.settings.avatar})`; 
+    avatarEl.textContent = '';
+  } else {
+    avatarEl.style.backgroundImage = ''; 
+    avatarEl.textContent = appData.settings.name.charAt(0).toUpperCase();
+  }
+  
+  // Navigation visibility
+  for (const navId in appData.settings.nav) {
+    const button = document.querySelector(`.nav button[data-view="${navId}"]`);
+    if (button) button.style.display = appData.settings.nav[navId] ? 'flex' : 'none';
+  }
+  
+  // Overview cards visibility
+  for (const overviewId in appData.settings.overview) {
+    const card = document.getElementById(overviewId);
+    if (card) card.style.display = appData.settings.overview[overviewId] ? 'block' : 'none';
+  }
+}
+
+function renderSettings(){
+  document.getElementById('setName').value = appData.settings.name;
+  document.getElementById('setEmail').value = appData.settings.email;
+  document.getElementById('setAccent').value = appData.settings.accentColor;
+  document.getElementById('setBg').value = appData.settings.bgColor;
+  document.getElementById('setTheme').value = appData.settings.theme;
+  
+  // Navigation checkboxes
+  for (const navId in appData.settings.nav) {
+    const checkbox = document.querySelector(`#settingsForm input[data-nav="${navId}"]`);
+    if (checkbox) checkbox.checked = !!appData.settings.nav[navId];
+  }
+  
+  // Overview checkboxes
+  for (const overviewId in appData.settings.overview) {
+    const checkbox = document.querySelector(`#settingsForm input[data-overview="${overviewId}"]`);
+    if (checkbox) checkbox.checked = !!appData.settings.overview[overviewId];
+  }
+}
+
+function renderTasks(){
+  const tasksList = document.getElementById('tasksList');
+  const allTasksList = document.getElementById('allTasksList');
+  
+  if (!tasksList || !allTasksList) return;
+  
+  tasksList.innerHTML = '';
+  allTasksList.innerHTML = '';
+  
+  if (!appData.tasks || appData.tasks.length === 0) {
+    const placeholder = '<div class="small fade-in">No tasks yet. Add one!</div>';
+    tasksList.innerHTML = placeholder; 
+    allTasksList.innerHTML = placeholder;
+    return;
+  }
+  
+  appData.tasks.forEach(task => {
+    const taskEl = document.createElement('div');
+    taskEl.className = `task fade-in ${task.completed ? 'completed' : ''}`;
+    taskEl.dataset.id = task.id;
     
-    function applySettings() {
-        // Apply theme
-        document.documentElement.classList.toggle('theme-oled', appData.currentTheme === 'oled');
-        document.getElementById('themeToggle').textContent = appData.currentTheme === 'oled' ? 'Light Mode' : 'OLED Dark';
+    const categoryColor = getCategoryColor(task.category);
+    
+    taskEl.innerHTML = `
+      <div class="task-color" style="background-color: ${categoryColor}"></div>
+      <div style="flex:1">
+        <div class="title">${task.title}</div>
+        <div class="meta">${task.day} • ${task.category}</div>
+      </div>
+      <span class="pill ${task.priority}">${task.priority.toUpperCase()}</span>
+      <span class="complete-btn" data-type="tasks" data-action="complete">${task.completed ? '✓' : '○'}</span>
+      <span class="delete-btn" data-type="tasks">×</span>
+    `;
+    
+    tasksList.appendChild(taskEl);
+    allTasksList.appendChild(taskEl.cloneNode(true));
+  });
+}
+
+// Notes rendering with search
+let notesSearchTerm = '';
+function renderNotes(){
+  const notesList = document.getElementById('notesList');
+  if (!notesList) return;
+  
+  notesList.innerHTML = '';
+  
+  let notes = appData.notes ? appData.notes.slice() : [];
+  if (notesSearchTerm) {
+    const q = notesSearchTerm.toLowerCase();
+    notes = notes.filter(n => 
+      (n.title || '').toLowerCase().includes(q) || 
+      (n.content || '').toLowerCase().includes(q) || 
+      (n.category || '').toLowerCase().includes(q)
+    );
+  }
+  
+  if (notes.length === 0) {
+    notesList.innerHTML = '<div class="small fade-in">No notes found.</div>';
+    return;
+  }
+  
+  notes.forEach(note => {
+    const el = document.createElement('div');
+    el.className = 'note fade-in';
+    el.dataset.id = note.id;
+    el.innerHTML = `
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:16px">${note.title}</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${note.category}</div>
+        <div class="note-excerpt">${(note.content || '').substring(0, 150)}${note.content && note.content.length > 150 ? '...' : ''}</div>
+      </div>
+      <span class="delete-btn" data-type="notes">×</span>
+    `;
+    notesList.appendChild(el);
+  });
+}
+
+// Enhanced flashcards with difficulty tracking
+function renderFlashcards(){
+  const list = document.getElementById('flashcardList');
+  if (!list) return;
+  
+  list.innerHTML = '';
+  
+  if (!appData.flashcards || appData.flashcards.length === 0) {
+    list.innerHTML = '<div class="small fade-in">No flashcards yet. Add one!</div>';
+    return;
+  }
+  
+  appData.flashcards.forEach(fc => {
+    const categoryColor = getCategoryColor(fc.category);
+    const wrap = document.createElement('div');
+    wrap.className = 'flashcard fade-in';
+    wrap.dataset.id = fc.id;
+    
+    wrap.innerHTML = `
+      <div class="flashcard-inner">
+        <div class="flashcard-category" style="background-color: ${categoryColor}">${fc.category}</div>
+        <button class="delete-btn-fc" data-type="flashcards">×</button>
+        <div class="flashcard-front">
+          <div style="font-size: 18px; margin-bottom: 16px;">${fc.front}</div>
+          <div style="font-size: 12px; color: var(--muted);">Difficulty: ${fc.difficulty || 0}</div>
+        </div>
+        <div class="flashcard-back">
+          <div style="font-size: 18px; margin-bottom: 16px;">${fc.back}</div>
+          <div class="flashcard-actions">
+            <button class="easy" data-action="easy" data-id="${fc.id}">👍</button>
+            <button class="hard" data-action="hard" data-id="${fc.id}">👎</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    list.appendChild(wrap);
+  });
+}
+
+function renderGrades(){
+  const list = document.getElementById('gradeList');
+  if (!list) return;
+  
+  list.innerHTML = '';
+  
+  if (!appData.grades || appData.grades.length === 0) {
+    list.innerHTML = '<div class="small fade-in">No subjects yet. Add one!</div>';
+    return;
+  }
+  
+  appData.grades.forEach(subject => {
+    const total = subject.items.reduce((acc, it) => acc + it.value, 0);
+    const avg = subject.items.length > 0 ? (total / subject.items.length).toFixed(2) : 0;
+    
+    let gradeItemsHTML = '';
+    subject.items.forEach(item => {
+      const color = item.value >= 80 ? 'var(--good)' : item.value >= 60 ? 'var(--warning)' : 'var(--danger)';
+      gradeItemsHTML += `
+        <div class="grade-item fade-in" data-id="${item.id}">
+          <span class="grade-value">${item.desc}: ${item.value}% <span style="color:${color}">●</span></span>
+          <span class="delete-btn" data-type="grade-item" data-subject-id="${subject.id}">×</span>
+        </div>
+      `;
+    });
+    
+    const div = document.createElement('div');
+    div.className = 'grade fade-in';
+    div.dataset.id = subject.id;
+    div.innerHTML = `
+      <div class="grade-header">
+        <span>${subject.subject} - Average: ${avg}%</span>
+        <span class="delete-btn" data-type="grades">×</span>
+      </div>
+      <div class="grade-progress">
+        <div class="grade-progress-bar" style="width:${avg}%"></div>
+      </div>
+      <div class="grade-list">${gradeItemsHTML}</div>
+      <button class="btn ghost add-grade-btn" data-subject-id="${subject.id}" data-subject-name="${subject.subject}">+ Add Grade</button>
+    `;
+    
+    list.appendChild(div);
+  });
+}
+
+function renderLinks(){
+  const list = document.getElementById('quickLinksList');
+  if (!list) return;
+  
+  list.innerHTML = '';
+  
+  if (!appData.links || appData.links.length === 0) {
+    list.innerHTML = '<div class="small fade-in">No links yet. Add one!</div>';
+    return;
+  }
+  
+  appData.links.forEach(link => {
+    const div = document.createElement('div');
+    div.className = 'link fade-in';
+    div.dataset.id = link.id;
+    div.innerHTML = `
+      <div class="link-icon">${link.icon || '🔗'}</div>
+      <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
+      <span class="delete-btn" data-type="links">×</span>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function renderNotifications(){
+  const list = document.getElementById('notificationsList');
+  if (!list) return;
+  
+  list.innerHTML = '';
+  
+  if (!appData.notifications || appData.notifications.length === 0) {
+    list.innerHTML = '<div class="small fade-in">No notifications.</div>';
+    return;
+  }
+  
+  appData.notifications.slice().reverse().slice(0, 5).forEach(note => {
+    const el = document.createElement('div');
+    el.className = 'note fade-in';
+    el.dataset.id = note.id;
+    el.innerHTML = `
+      <div>${note.content}</div>
+      <span class="delete-btn" data-type="notifications">×</span>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function addNotification(content, save = true) { 
+  if (!appData.notifications) appData.notifications = [];
+  const newNotif = { id: getNextId(appData.notifications), content }; 
+  appData.notifications.push(newNotif); 
+  if (save) saveData(); 
+  renderNotifications(); 
+}
+
+// CALENDAR FUNCTIONS
+let calendarDate = new Date();
+
+function updateCalendar(){
+  const calendarGrid = document.getElementById('calendarGrid');
+  const calendarMonth = document.getElementById('calendarMonth');
+  
+  if (!calendarGrid || !calendarMonth) return;
+  
+  calendarMonth.textContent = `${calendarDate.toLocaleString('default', {month: 'long'})} ${calendarDate.getFullYear()}`;
+  
+  const year = calendarDate.getFullYear();
+  const month = calendarDate.getMonth();
+  const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Monday = 0
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  
+  // Clear and add headers
+  calendarGrid.innerHTML = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']
+    .map(d => `<div class="cal-header">${d}</div>`).join('');
+  
+  // Add empty cells for days before month starts
+  calendarGrid.innerHTML += Array(firstDay).fill('<div></div>').join('');
+  
+  // Add days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const currentDate = new Date(year, month, day);
+    const dateStr = currentDate.toISOString().split('T')[0];
+    const hasEvent = appData.events && appData.events.some(e => e.date === dateStr);
+    const isToday = new Date().toDateString() === currentDate.toDateString();
+    
+    calendarGrid.innerHTML += `
+      <div class="cal-day${isToday ? ' cal-current' : ''}" data-date="${dateStr}">
+        ${day}
+        ${hasEvent ? '<div class="cal-event-dot"></div>' : ''}
+      </div>
+    `;
+  }
+}
+
+// QUOTE FETCHING
+async function fetchQuote(){
+  const quoteText = document.getElementById('quoteText');
+  const quoteAuthor = document.getElementById('quoteAuthor');
+  
+  if (!quoteText || !quoteAuthor) return;
+  
+  try {
+    const response = await fetch('https://api.quotable.io/random');
+    if (!response.ok) throw new Error('Network response not ok');
+    const data = await response.json();
+    quoteText.textContent = `"${data.content}"`;
+    quoteAuthor.textContent = `— ${data.author}`;
+  } catch(err) {
+    quoteText.textContent = '"The journey of a thousand miles begins with a single step."';
+    quoteAuthor.textContent = '— Lao Tzu';
+  }
+}
+
+// CALCULATOR LOGIC
+let calcState = {
+  display: '0',
+  previousValue: null,
+  operation: null,
+  waitingForNewNumber: false
+};
+
+function updateCalcDisplay() {
+  const display = document.getElementById('calcDisplay');
+  if (display) {
+    display.textContent = calcState.display;
+  }
+}
+
+function handleCalcInput(action, value) {
+  switch(action) {
+    case 'clear':
+      calcState = { display: '0', previousValue: null, operation: null, waitingForNewNumber: false };
+      break;
+      
+    case 'backspace':
+      if (calcState.display.length > 1) {
+        calcState.display = calcState.display.slice(0, -1);
+      } else {
+        calcState.display = '0';
+      }
+      break;
+      
+    case 'number':
+      if (calcState.waitingForNewNumber || calcState.display === '0') {
+        calcState.display = value;
+        calcState.waitingForNewNumber = false;
+      } else {
+        calcState.display += value;
+      }
+      break;
+      
+    case 'decimal':
+      if (calcState.waitingForNewNumber) {
+        calcState.display = '0.';
+        calcState.waitingForNewNumber = false;
+      } else if (calcState.display.indexOf('.') === -1) {
+        calcState.display += '.';
+      }
+      break;
+      
+    case 'operator':
+      const currentValue = parseFloat(calcState.display);
+      
+      if (calcState.previousValue !== null && calcState.operation && !calcState.waitingForNewNumber) {
+        const result = performCalculation(calcState.previousValue, currentValue, calcState.operation);
+        calcState.display = String(result);
+        calcState.previousValue = result;
+      } else {
+        calcState.previousValue = currentValue;
+      }
+      
+      calcState.operation = value;
+      calcState.waitingForNewNumber = true;
+      break;
+      
+    case 'equals':
+      if (calcState.operation && calcState.previousValue !== null && !calcState.waitingForNewNumber) {
+        const currentValue = parseFloat(calcState.display);
+        const result = performCalculation(calcState.previousValue, currentValue, calcState.operation);
+        calcState.display = String(result);
+        calcState.previousValue = null;
+        calcState.operation = null;
+        calcState.waitingForNewNumber = true;
+      }
+      break;
+  }
+  
+  updateCalcDisplay();
+}
+
+function performCalculation(prev, current, operation) {
+  switch(operation) {
+    case '+': return prev + current;
+    case '-': return prev - current;
+    case '*': return prev * current;
+    case '/': return current !== 0 ? prev / current : 0;
+    default: return current;
+  }
+}
+
+// POMODORO TIMER
+let pomInterval = null;
+let pomRemaining = 0;
+let pomMode = 'work';
+let pomRunning = false;
+let pomCycleCount = 0;
+
+function updatePomDisplay() {
+  const mm = Math.floor(pomRemaining / 60);
+  const ss = pomRemaining % 60;
+  const timer = document.getElementById('pomTimer');
+  const status = document.getElementById('pomStatus');
+  
+  if (timer) {
+    timer.textContent = `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    timer.className = 'timer ' + pomMode;
+  }
+  
+  if (status) {
+    const modeText = pomMode === 'work' ? 'Work Time' : 
+                    pomMode === 'break' ? 'Short Break' : 'Long Break';
+    status.textContent = `${modeText} - Cycle ${pomCycleCount + 1}`;
+  }
+}
+
+function renderPomodoroStats() {
+  const stats = appData.pomodoroStats || { sessions: 0, workMinutes: 0, breakMinutes: 0 };
+  const statsEl = document.getElementById('pomStats');
+  if (statsEl) {
+    statsEl.textContent = `Sessions: ${stats.sessions} | Work: ${stats.workMinutes} min | Breaks: ${stats.breakMinutes} min`;
+  }
+}
+
+function startPomodoro() {
+  if (pomRunning) return;
+  
+  pomRunning = true;
+  pomInterval = setInterval(() => {
+    if (pomRemaining > 0) {
+      pomRemaining--;
+      updatePomDisplay();
+    } else {
+      clearInterval(pomInterval);
+      pomRunning = false;
+      
+      // Handle timer completion
+      if (pomMode === 'work') {
+        pomCycleCount++;
+        if (!appData.pomodoroStats) appData.pomodoroStats = { sessions: 0, workMinutes: 0, breakMinutes: 0 };
+        appData.pomodoroStats.sessions++;
+        appData.pomodoroStats.workMinutes += parseInt(document.getElementById('pomWork').value);
         
-        // Apply colors
-        document.documentElement.style.setProperty('--accent', appData.settings.accentColor);
-        document.documentElement.style.setProperty('--bg', appData.settings.bgColor);
-
-        // Update profile
-        document.getElementById('userName').textContent = appData.settings.name;
-        document.getElementById('headerTitle').textContent = `${appData.settings.name}'s Workspace`;
-        document.getElementById('userEmail').textContent = appData.settings.email;
-        const avatarEl = document.getElementById('userAvatar');
-        if (appData.settings.avatar) {
-            avatarEl.style.backgroundImage = `url(${appData.settings.avatar})`;
-            avatarEl.textContent = '';
-        } else {
-            avatarEl.style.backgroundImage = '';
-            avatarEl.textContent = appData.settings.name.charAt(0).toUpperCase();
-        }
-
-        // Sidebar visibility
-        for (const navId in appData.settings.nav) {
-            const button = document.querySelector(`.nav button[data-view="${navId}"]`);
-            if (button) button.style.display = appData.settings.nav[navId] ? 'flex' : 'none';
-        }
-        // Overview visibility
-        for (const overviewId in appData.settings.overview) {
-            const card = document.getElementById(overviewId);
-            if(card) card.style.display = appData.settings.overview[overviewId] ? 'block' : 'none';
-        }
-    }
-    
-    function renderSettings() {
-        document.getElementById('setName').value = appData.settings.name;
-        document.getElementById('setEmail').value = appData.settings.email;
-        document.getElementById('setAccent').value = appData.settings.accentColor;
-        document.getElementById('setBg').value = appData.settings.bgColor;
-        document.getElementById('setTheme').value = appData.settings.theme;
-
-        for (const navId in appData.settings.nav) {
-            const checkbox = document.querySelector(`#settingsForm input[data-nav="${navId}"]`);
-            if (checkbox) checkbox.checked = appData.settings.nav[navId];
-        }
-        for (const overviewId in appData.settings.overview) {
-            const checkbox = document.querySelector(`#settingsForm input[data-overview="${overviewId}"]`);
-            if(checkbox) checkbox.checked = appData.settings.overview[overviewId];
-        }
-    }
-
-    function renderTasks() {
-        const tasksList = document.getElementById('tasksList');
-        const allTasksList = document.getElementById('allTasksList');
-        tasksList.innerHTML = '';
-        allTasksList.innerHTML = '';
-        if (appData.tasks.length === 0) {
-            const placeholder = '<div class="small">No tasks yet. Add one!</div>';
-            tasksList.innerHTML = placeholder;
-            allTasksList.innerHTML = placeholder;
-        } else {
-            appData.tasks.forEach(task => {
-                const taskEl = `
-                    <div class="task" data-id="${task.id}">
-                        <div style="flex:1">
-                            <div class="title">${task.title}</div>
-                            <div class="meta">${task.day} • ${task.category}</div>
-                        </div>
-                        <span class="pill ${task.priority}">${task.priority.toUpperCase()}</span>
-                        <span class="delete-btn" data-type="tasks">×</span>
-                    </div>`;
-                tasksList.innerHTML += taskEl;
-                allTasksList.innerHTML += taskEl;
-            });
-        }
-    }
-    
-    function renderNotes() {
-        const notesList = document.getElementById('notesList');
-        notesList.innerHTML = '';
-        if (appData.notes.length === 0) {
-            notesList.innerHTML = '<div class="small">No notes yet. Add one!</div>';
-        } else {
-            appData.notes.forEach(note => {
-                notesList.innerHTML += `
-                    <div class="note" data-id="${note.id}">
-                        <div>
-                            <div style="font-weight:600;font-size:16px">${note.title}</div>
-                            <div style="font-size:13px;color:var(--muted);margin-bottom:6px">${note.category}</div>
-                            <div>${note.content.replace(/\n/g, '<br>')}</div>
-                        </div>
-                        <span class="delete-btn" data-type="notes">×</span>
-                    </div>`;
-            });
-        }
-    }
-
-    function renderFlashcards() {
-        const list = document.getElementById('flashcardList');
-        list.innerHTML = '';
-        if (appData.flashcards.length === 0) {
-            list.innerHTML = '<div class="small">No flashcards yet. Add one!</div>';
-        } else {
-            appData.flashcards.forEach(fc => {
-                list.innerHTML += `
-                    <div class="flashcard" data-id="${fc.id}">
-                        <div class="flashcard-inner">
-                            <div class="flashcard-category">${fc.category}</div>
-                            <div class="flashcard-front">${fc.front}</div>
-                            <div class="flashcard-back">${fc.back}</div>
-                        </div>
-                        <span class="delete-btn" style="position:absolute;top:10px;right:10px;z-index:3;" data-type="flashcards">×</span>
-                    </div>`;
-            });
-        }
-    }
-    
-    function renderGrades() {
-        const list = document.getElementById('gradeList');
-        list.innerHTML = '';
-        if (appData.grades.length === 0) {
-            list.innerHTML = '<div class="small">No subjects yet. Add one!</div>';
-        } else {
-            appData.grades.forEach(subject => {
-                const total = subject.items.reduce((acc, item) => acc + item.value, 0);
-                const avg = subject.items.length > 0 ? (total / subject.items.length).toFixed(2) : 0;
-                let gradeItemsHTML = '';
-                subject.items.forEach(item => {
-                    const color = item.value >= 80 ? 'var(--good)' : item.value >= 60 ? 'var(--warning)' : 'var(--danger)';
-                    gradeItemsHTML += `
-                        <div class="grade-item" data-id="${item.id}">
-                           <span class="grade-value">${item.desc}: ${item.value}% <span style="color:${color}">●</span></span>
-                           <span class="delete-btn" data-type="grade-item" data-subject-id="${subject.id}">×</span>
-                        </div>`;
-                });
-
-                list.innerHTML += `
-                    <div class="grade" data-id="${subject.id}">
-                        <div class="grade-header">
-                            <span>${subject.subject} - Average: ${avg}%</span>
-                            <span class="delete-btn" data-type="grades">×</span>
-                        </div>
-                        <div class="grade-progress"><div class="grade-progress-bar" style="width:${avg}%"></div></div>
-                        <div class="grade-list">${gradeItemsHTML}</div>
-                        <button class="btn ghost add-grade-btn" data-subject-id="${subject.id}" data-subject-name="${subject.subject}">+ Add Grade</button>
-                    </div>`;
-            });
-        }
-    }
-    
-    function renderLinks() {
-        const list = document.getElementById('quickLinksList');
-        list.innerHTML = '';
-        if (appData.links.length === 0) {
-            list.innerHTML = '<div class="small">No links yet. Add one!</div>';
-        } else {
-            appData.links.forEach(link => {
-                list.innerHTML += `
-                    <div class="link" data-id="${link.id}">
-                        <div class="link-icon">${link.icon || '🔗'}</div>
-                        <a href="${link.url}" target="_blank" rel="noopener noreferrer">${link.title}</a>
-                        <span class="delete-btn" data-type="links">×</span>
-                    </div>`;
-            });
-        }
-    }
-    
-    function renderNotifications() {
-        const list = document.getElementById('notificationsList');
-        list.innerHTML = '';
-        if (appData.notifications.length === 0) {
-            list.innerHTML = '<div class="small">No notifications.</div>';
-        } else {
-            appData.notifications.slice().reverse().slice(0, 5).forEach(note => { // Show latest 5
-                list.innerHTML += `<div class="note" data-id="${note.id}"><div>${note.content}</div><span class="delete-btn" data-type="notifications">×</span></div>`;
-            });
-        }
-    }
-    
-    function addNotification(content, save = true) {
-        const newNotif = { id: getNextId(appData.notifications), content };
-        appData.notifications.push(newNotif);
-        if (save) saveData();
-        renderNotifications();
-    }
-
-
-    // --- CALENDAR ---
-    let calendarDate = new Date();
-    function updateCalendar() {
-        const calendarGrid = document.getElementById('calendarGrid');
-        document.getElementById('calendarMonth').textContent = `${calendarDate.toLocaleString('default', { month: 'long' })} ${calendarDate.getFullYear()}`;
+        addNotification('Pomodoro completed! Time for a break.');
         
-        const year = calendarDate.getFullYear();
-        const month = calendarDate.getMonth();
-        const firstDay = (new Date(year, month, 1).getDay() + 6) % 7; // Monday is 0
-        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        // Switch to break mode
+        const cycleLimit = parseInt(document.getElementById('pomCycles').value);
+        pomMode = (pomCycleCount % cycleLimit === 0) ? 'longbreak' : 'break';
+        pomRemaining = pomMode === 'break' 
+          ? parseInt(document.getElementById('pomShort').value) * 60
+          : parseInt(document.getElementById('pomLong').value) * 60;
+      } else {
+        // Break finished
+        if (!appData.pomodoroStats) appData.pomodoroStats = { sessions: 0, workMinutes: 0, breakMinutes: 0 };
+        const breakMinutes = pomMode === 'break' 
+          ? parseInt(document.getElementById('pomShort').value)
+          : parseInt(document.getElementById('pomLong').value);
+        appData.pomodoroStats.breakMinutes += breakMinutes;
         
-        calendarGrid.innerHTML = ['Mo','Tu','We','Th','Fr','Sa','Su'].map(d => `<div class="cal-header">${d}</div>`).join('');
-        calendarGrid.innerHTML += Array(firstDay).fill('<div></div>').join('');
-
-        for (let day = 1; day <= daysInMonth; day++) {
-            const currentDate = new Date(year, month, day);
-            const dateStr = currentDate.toISOString().split('T')[0];
-            const hasEvent = appData.events.some(e => e.date === dateStr);
-            const isToday = new Date().toDateString() === currentDate.toDateString();
-            
-            calendarGrid.innerHTML += `
-                <div class="cal-day ${isToday ? 'cal-current' : ''}" data-date="${dateStr}">
-                    ${day}
-                    ${hasEvent ? '<div class="cal-event-dot"></div>' : ''}
-                </div>`;
-        }
-    }
-
-    document.getElementById('prevMonthBtn').addEventListener('click', () => {
-        calendarDate.setMonth(calendarDate.getMonth() - 1);
-        updateCalendar();
-    });
-    document.getElementById('nextMonthBtn').addEventListener('click', () => {
-        calendarDate.setMonth(calendarDate.getMonth() + 1);
-        updateCalendar();
-    });
-    
-    document.getElementById('calendarGrid').addEventListener('click', (e) => {
-        const dayEl = e.target.closest('.cal-day');
-        if (!dayEl || !dayEl.dataset.date) return;
-
-        const date = dayEl.dataset.date;
-        const dayEvents = appData.events.filter(event => event.date === date);
-
-        if (dayEvents.length > 0) {
-            const modalDay = document.getElementById('modalDay');
-            modalDay.textContent = new Date(date + 'T00:00:00').toLocaleDateString();
-            const eventListEl = document.getElementById('dayEventsList');
-            eventListEl.innerHTML = dayEvents.map(event => `
-                <div class="task" data-id="${event.id}">
-                    <div>${event.desc}</div>
-                    <span class="delete-btn" data-type="events">×</span>
-                </div>`
-            ).join('');
-            document.getElementById('dayEventsModal').showModal();
-        }
-    });
-
-    // --- DAILY QUOTE ---
-    async function fetchQuote() {
-        try {
-            const response = await fetch('https://api.quotable.io/random');
-            const data = await response.json();
-            document.getElementById('quoteText').textContent = `"${data.content}"`;
-            document.getElementById('quoteAuthor').textContent = `— ${data.author}`;
-        } catch (error) {
-            console.error('Failed to fetch quote:', error);
-            document.getElementById('quoteText').textContent = '"The journey of a thousand miles begins with a single step."';
-            document.getElementById('quoteAuthor').textContent = '— Lao Tzu';
-        }
-    }
-
-    // --- EVENT LISTENERS ---
-
-    // Theme Toggle
-    document.getElementById('themeToggle').addEventListener('click', () => {
-        appData.currentTheme = appData.currentTheme === 'light' ? 'oled' : 'light';
-        saveData();
-        applySettings();
-    });
-
-    // Navigation
-    document.getElementById('sidebarNav').addEventListener('click', (e) => {
-        if (e.target.tagName === 'BUTTON') {
-            document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
-            e.target.classList.add('active');
-            const viewId = e.target.dataset.view;
-            document.querySelectorAll('.grid').forEach(view => view.classList.toggle('hidden', view.id !== viewId));
-        }
-    });
-
-    // --- Modal Openers ---
-    document.getElementById('quickAdd').addEventListener('click', () => document.getElementById('addTaskModal').showModal());
-    document.getElementById('addNote').addEventListener('click', () => document.getElementById('addNoteModal').showModal());
-    document.getElementById('addEvent').addEventListener('click', () => document.getElementById('addEventModal').showModal());
-    document.getElementById('addFlashcard').addEventListener('click', () => document.getElementById('addFlashcardModal').showModal());
-    document.getElementById('addSubject').addEventListener('click', () => document.getElementById('addSubjectModal').showModal());
-    document.getElementById('addLink').addEventListener('click', () => document.getElementById('addLinkModal').showModal());
-    
-    document.getElementById('gradeList').addEventListener('click', e => {
-        if (e.target.classList.contains('add-grade-btn')) {
-            const modal = document.getElementById('addGradeModal');
-            modal.querySelector('#gradeSubject').textContent = e.target.dataset.subjectName;
-            modal.dataset.subjectId = e.target.dataset.subjectId;
-            modal.showModal();
-        }
-    });
-    
-    document.getElementById('flashcardList').addEventListener('click', e => {
-        const card = e.target.closest('.flashcard');
-        if (card && !e.target.classList.contains('delete-btn')) {
-            card.classList.toggle('show-back');
-        }
-    });
-
-    // --- Form Submissions ---
-    document.getElementById('taskForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newTask = {
-            id: getNextId(appData.tasks),
-            title: document.getElementById('taskTitle').value,
-            day: document.getElementById('taskDay').value,
-            category: document.getElementById('taskCategory').value,
-            priority: document.getElementById('taskPriority').value,
-        };
-        appData.tasks.push(newTask);
-        addNotification(`New task added: ${newTask.title}`);
-        saveData();
-        renderTasks();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-
-    document.getElementById('noteForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const newNote = {
-            id: getNextId(appData.notes),
-            title: document.getElementById('noteTitle').value,
-            category: document.getElementById('noteCategory').value || 'Uncategorized',
-            content: document.getElementById('noteContent').value,
-        };
-        appData.notes.push(newNote);
-        addNotification(`New note added: ${newNote.title}`);
-        saveData();
-        renderNotes();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-
-    document.getElementById('eventForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const newEvent = {
-            id: getNextId(appData.events),
-            date: document.getElementById('eventDate').value,
-            desc: document.getElementById('eventDesc').value,
-        };
-        appData.events.push(newEvent);
-        addNotification(`Event added for ${newEvent.date}: ${newEvent.desc}`);
-        saveData();
-        updateCalendar();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-
-    document.getElementById('flashcardForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const newFc = {
-            id: getNextId(appData.flashcards),
-            category: document.getElementById('fcCategory').value || 'General',
-            front: document.getElementById('fcFront').value,
-            back: document.getElementById('fcBack').value,
-        };
-        appData.flashcards.push(newFc);
-        saveData();
-        renderFlashcards();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-
-    document.getElementById('subjectForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const newSubject = {
-            id: getNextId(appData.grades),
-            subject: document.getElementById('subjectName').value,
-            items: []
-        };
-        appData.grades.push(newSubject);
-        saveData();
-        renderGrades();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-    
-    document.getElementById('gradeForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const subjectId = parseInt(document.getElementById('addGradeModal').dataset.subjectId);
-        const subject = appData.grades.find(s => s.id === subjectId);
-        if (subject) {
-            const newGrade = {
-                id: getNextId(subject.items),
-                desc: document.getElementById('gradeDesc').value || 'Grade',
-                value: parseFloat(document.getElementById('gradeValue').value)
-            };
-            subject.items.push(newGrade);
-            saveData();
-            renderGrades();
-        }
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-
-    document.getElementById('linkForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const newLink = {
-            id: getNextId(appData.links),
-            title: document.getElementById('linkTitle').value,
-            url: document.getElementById('linkUrl').value,
-            icon: document.getElementById('linkIcon').value,
-        };
-        appData.links.push(newLink);
-        saveData();
-        renderLinks();
-        e.target.closest('dialog').close();
-        e.target.reset();
-    });
-    
-    document.getElementById('settingsForm').addEventListener('submit', (e) => {
-        e.preventDefault();
-        appData.settings.name = document.getElementById('setName').value;
-        appData.settings.email = document.getElementById('setEmail').value;
-        appData.settings.accentColor = document.getElementById('setAccent').value;
-        appData.settings.bgColor = document.getElementById('setBg').value;
-        appData.settings.theme = document.getElementById('setTheme').value;
+        addNotification('Break finished! Back to work.');
         
-        document.querySelectorAll('#settingsForm input[data-nav]').forEach(cb => {
-            appData.settings.nav[cb.dataset.nav] = cb.checked;
-        });
-        document.querySelectorAll('#settingsForm input[data-overview]').forEach(cb => {
-            appData.settings.overview[cb.dataset.overview] = cb.checked;
-        });
+        // Switch to work mode
+        pomMode = 'work';
+        pomRemaining = parseInt(document.getElementById('pomWork').value) * 60;
+      }
+      
+      renderPomodoroStats();
+      saveData();
+      updatePomDisplay();
+      
+      // Auto-start next session (optional)
+      // startPomodoro();
+    }
+  }, 1000);
+}
 
-        const avatarFile = document.getElementById('setAvatar').files[0];
-        if (avatarFile) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                appData.settings.avatar = e.target.result;
-                saveData();
-                applySettings();
-            };
-            reader.readAsDataURL(avatarFile);
-        } else {
-            saveData();
-            applySettings();
-        }
-        addNotification('Settings saved!', false); // Don't re-save
+function pausePomodoro() {
+  if (pomInterval) {
+    clearInterval(pomInterval);
+    pomInterval = null;
+  }
+  pomRunning = false;
+}
+
+function resetPomodoro() {
+  pausePomodoro();
+  pomMode = 'work';
+  pomCycleCount = 0;
+  pomRemaining = parseInt(document.getElementById('pomWork').value) * 60;
+  updatePomDisplay();
+}
+
+// EVENT HANDLERS
+
+// Navigation
+document.getElementById('sidebarNav').addEventListener('click', (e) => {
+  if (e.target.tagName === 'BUTTON') {
+    document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+    e.target.classList.add('active');
+    
+    const viewId = e.target.dataset.view;
+    document.querySelectorAll('.grid').forEach(view => {
+      view.classList.toggle('hidden', view.id !== viewId);
     });
     
-    // --- Deletion Logic ---
-    document.body.addEventListener('click', (e) => {
-        if (e.target.classList.contains('delete-btn')) {
-            const btn = e.target;
-            const type = btn.dataset.type;
-            const itemEl = btn.closest('[data-id]');
-            const id = parseInt(itemEl.dataset.id);
-
-            if (!type || !itemEl || isNaN(id)) return;
-            
-            if (type === 'grade-item') {
-                const subjectId = parseInt(btn.dataset.subjectId);
-                const subject = appData.grades.find(s => s.id === subjectId);
-                if(subject) subject.items = subject.items.filter(item => item.id !== id);
-                renderGrades();
-            } else {
-                appData[type] = appData[type].filter(item => item.id !== id);
-                // Dynamically call the correct render function based on type
-                const renderFunc = {
-                    tasks: renderTasks,
-                    notes: renderNotes,
-                    events: updateCalendar,
-                    flashcards: renderFlashcards,
-                    grades: renderGrades,
-                    links: renderLinks,
-                    notifications: renderNotifications
-                }[type];
-                
-                if (renderFunc) renderFunc();
-            }
-            saveData();
-        }
-    });
-
-    // --- INITIALIZATION ---
-    function init() {
-        loadData();
-        renderAll();
-        fetchQuote();
-    }
-
-    init();
+    fadeInCards();
+  }
 });
+
+// Theme toggle
+document.getElementById('themeToggle').addEventListener('click', () => {
+  appData.currentTheme = appData.currentTheme === 'oled' ? 'light' : 'oled';
+  applySettings();
+  saveData();
+});
+
+// Modal openers
+document.getElementById('quickAdd').addEventListener('click', () => {
+  document.getElementById('addTaskModal').showModal();
+});
+
+document.getElementById('newNoteBtn').addEventListener('click', () => {
+  openNoteEditor(null);
+});
+
+document.getElementById('addEvent').addEventListener('click', () => {
+  document.getElementById('addEventModal').showModal();
+});
+
+document.getElementById('addFlashcard').addEventListener('click', () => {
+  document.getElementById('addFlashcardModal').showModal();
+});
+
+document.getElementById('addSubject').addEventListener('click', () => {
+  document.getElementById('addSubjectModal').showModal();
+});
+
+document.getElementById('addLink').addEventListener('click', () => {
+  document.getElementById('addLinkModal').showModal();
+});
+
+// Calculator events
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('calc-btn')) {
+    const action = e.target.dataset.action;
+    const value = e.target.dataset.value || e.target.textContent;
+    handleCalcInput(action, value);
+  }
+});
+
+// Pomodoro events
+document.getElementById('pomStart').addEventListener('click', startPomodoro);
+document.getElementById('pomPause').addEventListener('click', pausePomodoro);
+document.getElementById('pomReset').addEventListener('click', resetPomodoro);
+
+// Pomodoro settings change
+['pomWork', 'pomShort', 'pomLong', 'pomCycles'].forEach(id => {
+  document.getElementById(id).addEventListener('change', resetPomodoro);
+});
+
+// Calendar events
+document.getElementById('calendarGrid').addEventListener('click', (e) => {
+  const dayEl = e.target.closest('.cal-day');
+  if (!dayEl || !dayEl.dataset.date) return;
+  
+  const date = dayEl.dataset.date;
+  const modalDay = document.getElementById('modalDay');
+  modalDay.textContent = new Date(date + 'T00:00:00').toLocaleDateString();
+  
+  const eventListEl = document.getElementById('dayEventsList');
+  const dayEvents = appData.events ? appData.events.filter(ev => ev.date === date) : [];
+  
+  eventListEl.innerHTML = dayEvents.map(ev => `
+    <div class="task fade-in" data-id="${ev.id}">
+      <div class="task-color" style="background-color: ${getCategoryColor(ev.category)}"></div>
+      <div style="flex:1">${ev.desc}</div>
+      <span class="delete-btn" data-type="events" data-event-id="${ev.id}">×</span>
+    </div>
+  `).join('');
+  
+  document.getElementById('dayEventsModal').showModal();
+});
+
+document.getElementById('prevMonthBtn').addEventListener('click', () => {
+  calendarDate.setMonth(calendarDate.getMonth() - 1);
+  updateCalendar();
+});
+
+document.getElementById('nextMonthBtn').addEventListener('click', () => {
+  calendarDate.setMonth(calendarDate.getMonth() + 1);
+  updateCalendar();
+});
+
+// Flashcard interactions
+document.getElementById('flashcardList').addEventListener('click', (e) => {
+  const card = e.target.closest('.flashcard');
+  
+  if (e.target.dataset.action === 'easy' || e.target.dataset.action === 'hard') {
+    const id = parseInt(e.target.dataset.id);
+    const flashcard = appData.flashcards.find(fc => fc.id === id);
+    
+    if (flashcard) {
+      if (e.target.dataset.action === 'easy') {
+        flashcard.difficulty = Math.max(0, (flashcard.difficulty || 0) - 1);
+        addNotification('Flashcard marked as easy!');
+      } else {
+        flashcard.difficulty = (flashcard.difficulty || 0) + 1;
+        addNotification('Flashcard marked as hard!');
+      }
+      saveData();
+      renderFlashcards();
+    }
+    return;
+  }
+  
+  if (card && !e.target.classList.contains('delete-btn-fc')) {
+    card.classList.toggle('show-back');
+  }
+});
+
+// Grade modal opener
+document.getElementById('gradeList').addEventListener('click', (e) => {
+  if (e.target.classList.contains('add-grade-btn')) {
+    const modal = document.getElementById('addGradeModal');
+    modal.querySelector('#gradeSubject').textContent = e.target.dataset.subjectName;
+    modal.dataset.subjectId = e.target.dataset.subjectId;
+    modal.showModal();
+  }
+});
+
+// Note search
+document.getElementById('noteSearch').addEventListener('input', (e) => {
+  notesSearchTerm = e.target.value;
+  renderNotes();
+});
+
+// Note editor functions
+function openNoteEditor(note) {
+  const modal = document.getElementById('editNoteModal');
+  document.getElementById('editNoteTitle').textContent = note ? `Edit: ${note.title}` : 'New Note';
+  document.getElementById('editNoteCategory').value = note ? (note.category || '') : '';
+  
+  const editor = document.getElementById('noteEditor');
+  editor.innerHTML = note ? note.content.replace(/\n/g, '<br>') : '';
+  
+  modal.dataset.noteId = note ? note.id : '';
+  modal.showModal();
+  editor.focus();
+}
+
+// Note clicking
+document.getElementById('notesList').addEventListener('click', (e) => {
+  const noteEl = e.target.closest('.note');
+  if (!noteEl || e.target.classList.contains('delete-btn')) return;
+  
+  const id = parseInt(noteEl.dataset.id);
+  const note = appData.notes.find(n => n.id === id);
+  if (note) openNoteEditor(note);
+});
+
+// Editor toolbar
+document.querySelectorAll('#editNoteModal [data-cmd]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cmd = btn.dataset.cmd;
+    const val = btn.dataset.value || null;
+    
+    if (cmd === 'formatBlock' && val) {
+      document.execCommand('formatBlock', false, val);
+    } else {
+      document.execCommand(cmd, false, val);
+    }
+    
+    document.getElementById('noteEditor').focus();
+  });
+});
+
+// Save note
+document.getElementById('saveNoteBtn').addEventListener('click', () => {
+  const modal = document.getElementById('editNoteModal');
+  const id = parseInt(modal.dataset.noteId);
+  const category = document.getElementById('editNoteCategory').value || 'Uncategorized';
+  const editor = document.getElementById('noteEditor');
+  const title = (editor.innerText || '').split('\n')[0].slice(0, 80) || 'Untitled';
+  const content = editor.innerHTML
+    .replace(/<div>/g, '')
+    .replace(/<br>\s*<br>/g, '\n\n')
+    .replace(/<br>/g, '\n')
+    .replace(/&nbsp;/g, ' ');
+  
+  if (id) {
+    const note = appData.notes.find(n => n.id === id);
+    if (note) {
+      note.title = title;
+      note.category = category;
+      note.content = content;
+    }
+  } else {
+    if (!appData.notes) appData.notes = [];
+    const newNote = { id: getNextId(appData.notes), title, category, content };
+    appData.notes.push(newNote);
+    modal.dataset.noteId = newNote.id;
+  }
+  
+  saveData();
+  renderNotes();
+  addNotification('Note saved');
+  modal.close();
+});
+
+// Delete note
+document.getElementById('deleteNoteBtn').addEventListener('click', () => {
+  const modal = document.getElementById('editNoteModal');
+  const id = parseInt(modal.dataset.noteId);
+  
+  if (id && confirm('Delete this note?')) {
+    appData.notes = appData.notes.filter(n => n.id !== id);
+    saveData();
+    renderNotes();
+    addNotification('Note deleted');
+    modal.close();
+  }
+});
+
+// FORM SUBMISSIONS
+
+// Task form
+document.getElementById('taskForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!appData.tasks) appData.tasks = [];
+  
+  const newTask = {
+    id: getNextId(appData.tasks),
+    title: document.getElementById('taskTitle').value,
+    day: document.getElementById('taskDay').value,
+    category: document.getElementById('taskCategory').value,
+    priority: document.getElementById('taskPriority').value,
+    completed: false
+  };
+  
+  appData.tasks.push(newTask);
+  addNotification(`New task added: ${newTask.title}`);
+  saveData();
+  renderTasks();
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Event form
+document.getElementById('eventForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!appData.events) appData.events = [];
+  
+  const newEvent = {
+    id: getNextId(appData.events),
+    date: document.getElementById('eventDate').value,
+    desc: document.getElementById('eventDesc').value,
+    category: document.getElementById('eventCategory').value
+  };
+  
+  appData.events.push(newEvent);
+  addNotification(`Event added for ${newEvent.date}: ${newEvent.desc}`);
+  saveData();
+  updateCalendar();
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Flashcard form
+document.getElementById('flashcardForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!appData.flashcards) appData.flashcards = [];
+  
+  const newFc = {
+    id: getNextId(appData.flashcards),
+    category: document.getElementById('fcCategory').value,
+    front: document.getElementById('fcFront').value,
+    back: document.getElementById('fcBack').value,
+    difficulty: 0
+  };
+  
+  appData.flashcards.push(newFc);
+  saveData();
+  renderFlashcards();
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Subject form
+document.getElementById('subjectForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!appData.grades) appData.grades = [];
+  
+  const newSubject = {
+    id: getNextId(appData.grades),
+    subject: document.getElementById('subjectName').value,
+    items: []
+  };
+  
+  appData.grades.push(newSubject);
+  saveData();
+  renderGrades();
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Grade form
+document.getElementById('gradeForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  const subjectId = parseInt(document.getElementById('addGradeModal').dataset.subjectId);
+  const subject = appData.grades.find(s => s.id === subjectId);
+  
+  if (subject) {
+    const newGrade = {
+      id: getNextId(subject.items),
+      desc: document.getElementById('gradeDesc').value || 'Grade',
+      value: parseFloat(document.getElementById('gradeValue').value)
+    };
+    
+    subject.items.push(newGrade);
+    saveData();
+    renderGrades();
+  }
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Link form
+document.getElementById('linkForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  if (!appData.links) appData.links = [];
+  
+  const newLink = {
+    id: getNextId(appData.links),
+    title: document.getElementById('linkTitle').value,
+    url: document.getElementById('linkUrl').value,
+    icon: document.getElementById('linkIcon').value
+  };
+  
+  appData.links.push(newLink);
+  saveData();
+  renderLinks();
+  
+  e.target.closest('dialog').close();
+  e.target.reset();
+});
+
+// Settings form
+document.getElementById('settingsForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  
+  appData.settings.name = document.getElementById('setName').value;
+  appData.settings.email = document.getElementById('setEmail').value;
+  appData.settings.accentColor = document.getElementById('setAccent').value;
+  appData.settings.bgColor = document.getElementById('setBg').value;
+  appData.settings.theme = document.getElementById('setTheme').value;
+  
+  // Navigation settings
+  document.querySelectorAll('#settingsForm input[data-nav]').forEach(cb => {
+    appData.settings.nav[cb.dataset.nav] = cb.checked;
+  });
+  
+  // Overview settings
+  document.querySelectorAll('#settingsForm input[data-overview]').forEach(cb => {
+    appData.settings.overview[cb.dataset.overview] = cb.checked;
+  });
+  
+  // Handle avatar upload
+  const avatarFile = document.getElementById('setAvatar').files[0];
+  if (avatarFile) {
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      appData.settings.avatar = ev.target.result;
+      saveData();
+      applySettings();
+    };
+    reader.readAsDataURL(avatarFile);
+  } else {
+    saveData();
+    applySettings();
+  }
+  
+  addNotification('Settings saved!', false);
+});
+
+// Live settings preview
+document.getElementById('setAccent').addEventListener('input', (e) => {
+  document.documentElement.style.setProperty('--accent', e.target.value);
+});
+
+document.getElementById('setBg').addEventListener('input', (e) => {
+  document.documentElement.style.setProperty('--bg', e.target.value);
+});
+
+// DELETION LOGIC
+document.body.addEventListener('click', (e) => {
+  if (e.target.classList.contains('delete-btn') || e.target.classList.contains('delete-btn-fc')) {
+    const btn = e.target;
+    const type = btn.dataset.type;
+    const itemEl = btn.closest('[data-id]');
+    const idAttr = btn.dataset.eventId || (itemEl ? itemEl.dataset.id : null);
+    const id = idAttr ? parseInt(idAttr) : NaN;
+    
+    if (!type || isNaN(id)) return;
+    
+    if (type === 'grade-item') {
+      const subjectId = parseInt(btn.dataset.subjectId);
+      const subject = appData.grades.find(s => s.id === subjectId);
+      if (subject) {
+        subject.items = subject.items.filter(item => item.id !== id);
+        saveData();
+        renderGrades();
+      }
+    } else if (type === 'events') {
+      appData.events = appData.events.filter(ev => ev.id !== id);
+      saveData();
+      updateCalendar();
+      
+      // Update day events modal if open
+      const modal = document.getElementById('dayEventsModal');
+      if (modal.open) {
+        const dayEventsList = document.getElementById('dayEventsList');
+        const eventEl = dayEventsList.querySelector(`[data-id="${id}"]`);
+        if (eventEl) eventEl.remove();
+      }
+    } else {
+      // Handle regular deletions
+      if (appData[type]) {
+        appData[type] = appData[type].filter(item => item.id !== id);
+        saveData();
+        
+        const renderFunctions = {
+          tasks: renderTasks,
+          notes: renderNotes,
+          flashcards: renderFlashcards,
+          grades: renderGrades,
+          links: renderLinks,
+          notifications: renderNotifications
+        };
+        
+        if (renderFunctions[type]) {
+          renderFunctions[type]();
+        }
+      }
+    }
+  }
+  
+  // Handle task completion
+  if (e.target.classList.contains('complete-btn')) {
+    const taskEl = e.target.closest('[data-id]');
+    const id = parseInt(taskEl.dataset.id);
+    const task = appData.tasks.find(t => t.id === id);
+    
+    if (task) {
+      task.completed = !task.completed;
+      saveData();
+      renderTasks();
+      addNotification(task.completed ? 'Task completed!' : 'Task marked incomplete');
+    }
+  }
+});
+
+// INITIALIZATION
+function init() {
+  loadData();
+  renderAll();
+  fetchQuote();
+  
+  // Initialize calculator
+  updateCalcDisplay();
+  
+  // Initialize pomodoro
+  pomRemaining = parseInt(document.getElementById('pomWork').value) * 60;
+  updatePomDisplay();
+  renderPomodoroStats();
+  
+  fadeInCards();
+}
+
+// Auto-save before page unload
+window.addEventListener('beforeunload', () => saveData());
+
+// Initialize the app
+init();
 </script>
 </body>
 </html>
