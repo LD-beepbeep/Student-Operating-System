@@ -2,6 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
+<link rel="manifest" href="/Student-Operating-System/manifest.json">
+<meta name="theme-color" content="#2563eb">
+<link rel="apple-touch-icon" href="/Student-Operating-System/icons/icon-192.png">
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Student OS</title>
 <style>
@@ -1625,6 +1628,15 @@ window.addEventListener('beforeunload', () => saveData());
 
 // Initialize the app
 init();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/Student-Operating-System/service-worker.js')
+        .then(reg => console.log('Service worker registered', reg))
+        .catch(err => console.error('Service worker registration failed', err));
+    });
+  }
 </script>
 </body>
 </html>
